@@ -12,7 +12,7 @@ BEGIN { $| = 1; }
 END
 {
   # Clean up our cache
-  File::Cache::CLEAR($CGI::Cache::CACHE_PATH);
+  Cache::SizeAwareFileCache::Clear($CGI::Cache::CACHE_PATH);
 }
 
 use File::Path;
@@ -20,6 +20,8 @@ use strict;
 use vars qw( %TEST_SCRIPTS $VERSION );
 
 $VERSION = '0.04';
+
+my $PERL = $^X;
 
 # ----------------------------------------------------------------------------
 
@@ -31,7 +33,7 @@ use CGI::Cache;
 
 CGI::Cache::setup();
 CGI::Cache::set_key('test key');
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 1\n";
 
@@ -43,13 +45,13 @@ EOF
 use lib './blib/lib';
 use CGI::Cache;
 
-CGI::Cache::setup( { username => '',
+CGI::Cache::setup( { cache_options => { 
                      filemode => 0666,
                      max_size => 20 * 1024 * 1024,
-                     expires_in => 6 * 60 * 60,
-                   } );
+                     default_expires_in => 6 * 60 * 60,
+                   } } );
 CGI::Cache::set_key( ['test key 2',1,2] );
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 2\n";
 sleep 2;
@@ -62,7 +64,7 @@ use CGI::Cache;
 
 CGI::Cache::setup( );
 CGI::Cache::set_key( {2 => 'test key 3', 1 => 'test', 3 => 'key'} );
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 3\n";
 
@@ -76,7 +78,7 @@ use CGI::Cache;
 
 CGI::Cache::setup( );
 CGI::Cache::set_key( {2 => 'test key 3', 1 => 'test', 3 => 'key'} );
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 4\n";
 
@@ -90,7 +92,7 @@ use CGI::Cache;
 
 CGI::Cache::setup( );
 CGI::Cache::set_key( {2 => 'test key 3', 1 => 'test', 3 => 'key'} );
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 5\n";
 
@@ -108,7 +110,7 @@ $SIG{__DIE__} = sub { print STDOUT @_;exit 1 };
 
 CGI::Cache::setup( );
 CGI::Cache::set_key( {2 => 'test key 3', 1 => 'test', 3 => 'key'} );
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 6\n";
 
@@ -120,14 +122,14 @@ EOF
 use lib './blib/lib';
 use CGI::Cache;
 
-CGI::Cache::setup( { username => '',
+CGI::Cache::setup( { cache_options => {
                      filemode => 0666,
                      max_size => 20 * 1024 * 1024,
-                     expires_in => 6 * 60 * 60,
-                   } );
+                     default_expires_in => 6 * 60 * 60,
+                   } } );
 CGI::Cache::set_key( ['test key',1,2] );
 CGI::Cache::invalidate_cache_entry();
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 2\n";
 EOF
@@ -139,7 +141,7 @@ use CGI::Cache;
 
 CGI::Cache::setup();
 CGI::Cache::set_key( 'test key' );
-CGI::Cache::start();
+CGI::Cache::start() or exit;
 
 print "Test output 1\n";
 CGI::Cache::pause();
@@ -153,15 +155,127 @@ EOF
 use lib './blib/lib';
 use CGI::Cache;
 
-CGI::Cache::setup();
+open FH, ">TEST.OUT";
+
+CGI::Cache::setup( { output_handle => \*FH } );
 CGI::Cache::set_key( 'test key' );
-CGI::Cache::start();
+CGI::Cache::start() or die "Should not have cached output for this test\n";
 
 print "Test output 1\n";
-CGI::Cache::buffer( "Rewritten output 1\n", "Rewritten output 2\n" );
+
+CGI::Cache::stop();
+
+close FH;
+
+open FH, "TEST.OUT";
+local $/ = undef;
+$results = <FH>;
+close FH;
+
+unlink "TEST.OUT";
+
+print "RESULTS: $results";
+EOF
+         "Test output 1\n"],
+
+  10 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+CGI::Cache::setup( { watched_output_handle => \*STDOUT,
+                     watched_error_handle => \*STDERR,
+                     output_handle => \*STDOUT,
+                     error_handle => \*STDERR } );
+CGI::Cache::set_key('test key');
+CGI::Cache::start() or exit;
+
+print "Test output 1\n";
+
+sleep 2;
+EOF
+         "Test output 1\n"],
+
+  11 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+CGI::Cache::setup( { watched_output_handle => \*STDOUT,
+                     watched_error_handle => \*STDERR,
+                     output_handle => \*STDOUT,
+                     error_handle => \*STDERR } );
+CGI::Cache::set_key( {2 => 'test key 3', 1 => 'test', 3 => 'key'} );
+CGI::Cache::start() or exit;
+
+print "Test output 3\n";
+
+die "Forced die!" if @ARGV;
+EOF
+         "Test output 3\n"],
+
+  12 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+CGI::Cache::setup( { watched_output_handle => \*STDOUT,
+                     watched_error_handle => \*STDERR,
+                     output_handle => \*STDOUT,
+                     error_handle => \*STDERR } );
+CGI::Cache::set_key( {2 => 'test key 3', 1 => 'test', 3 => 'key'} );
+CGI::Cache::start() or exit;
+
+print "Test output 5\n";
+
+CGI::Cache::stop();
+
+print "Test uncached output 5\n";
+EOF
+         ["Test output 5\n","Test output 5\nTest uncached output 5\n"]],
+
+  13 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+CGI::Cache::setup( { watched_output_handle => \*STDOUT,
+                     watched_error_handle => \*STDERR,
+                     output_handle => \*STDOUT,
+                     error_handle => \*STDERR } );
+CGI::Cache::set_key( 'test key' );
+CGI::Cache::start() or exit;
+
+print "Test output 1\n";
+CGI::Cache::pause();
+print "Uncached output\n";
+CGI::Cache::continue();
 print "Test output 2\n";
 EOF
-         "Rewritten output 1\nRewritten output 2\nTest output 2\n"],
+         "Test output 1\nTest output 2\n"],
+
+  14 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+open FH, ">TEST.OUT";
+
+CGI::Cache::setup( { watched_output_handle => \*FH } );
+CGI::Cache::set_key( 'test key' );
+CGI::Cache::start() or die "Should not have cached output for this test\n";
+
+print FH "Test output 1\n";
+
+CGI::Cache::stop();
+
+close FH;
+
+open FH, "TEST.OUT";
+local $/ = undef;
+$results = <FH>;
+close FH;
+
+unlink "TEST.OUT";
+
+print "RESULTS: $results\n";
+EOF
+         "Test output 1\n"],
 
 );
 
@@ -269,10 +383,10 @@ sub {
 sub {
   my $script_number = 3;
 
-	my $file = "cgi_test_$script_number.cgi";
+	my $test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
@@ -284,16 +398,16 @@ sub {
       or die "Can't redirect STDERR to STDERR-redirected: $!\n";
 
 		#	First run should die after printing some output
-		`perl $file args`;
+		`$PERL $test_script args`;
 
     open STDERR,">&OLDSTDERR" or die "Can't restore STDERR: $!\n";
 
     # Make sure there is nothing in the cache
 		die "A script with an error resulted in cached content."
-		  if defined $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY);
+		  if defined $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
 
 		#	Now run successfully and make sure the cached content is there
-		my $script_results_2 = `perl $file`;
+		my $script_results_2 = `$PERL $test_script`;
 
     # Get the real answer and compare that to what test generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
@@ -302,10 +416,10 @@ sub {
 		 if $real_results ne $script_results_2;
 
 		die "Cache file didn't have right content."
-		 if $real_results ne $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY);
+		 if $real_results ne $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
 	};
 
-	unlink "$file";
+	unlink "$test_script";
 	unlink "STDERR-redirected";
 
 	($@ eq '') ? 1 : 0;
@@ -315,10 +429,10 @@ sub {
 sub {
   my $script_number = 4;
 
-	my $file = "cgi_test_$script_number.cgi";
+	my $test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
@@ -330,16 +444,16 @@ sub {
       or die "Can't redirect STDERR to STDERR-redirected: $!\n";
 
 		#	First run should print to STDERR after printing some output
-		`perl $file args`;
+		`$PERL $test_script args`;
 
     open STDERR,">&OLDSTDERR" or die "Can't restore STDERR: $!\n";
 
     # Make sure there is nothing in the cache
 		die "A script with output to STDERR resulted in cached content."
-		  if defined $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY);
+		  if defined $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
 
 		#	Now run successfully and make sure the cached content is there
-		my $script_results_2 = `perl $file`;
+		my $script_results_2 = `$PERL $test_script`;
 
     # Get the real answer and compare that to what test generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
@@ -348,10 +462,10 @@ sub {
 		  if $real_results ne $script_results_2;
 
 		die "Cache file didn't have right content."
-		  if $real_results ne $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY);
+		  if $real_results ne $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
 	};
 
-	unlink "$file";
+	unlink "$test_script";
 	unlink "STDERR-redirected";
 
 	($@ eq '') ? 1 : 0;
@@ -361,15 +475,15 @@ sub {
 sub {
   my $script_number = 5;
 
-	my $file = "cgi_test_$script_number.cgi";
+	my $test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
 		#	First run should print to STDOUT but only cache part of it
-		my $script_output = `perl $file`;
+		my $script_output = `$PERL $test_script`;
 
     # Get the real STDOUT and compare that to what test generated
     my $real_output_results = $TEST_SCRIPTS{$script_number}[1][1];
@@ -381,10 +495,10 @@ sub {
     my $real_cache_results = $TEST_SCRIPTS{$script_number}[1][0];
 
 		die "Cache file didn't have right content."
-		  if $real_cache_results ne $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY);
+		  if $real_cache_results ne $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
 	};
 
-	unlink "$file";
+	unlink "$test_script";
 
 	($@ eq '') ? 1 : 0;
 },
@@ -393,10 +507,10 @@ sub {
 sub {
   my $script_number = 6;
 
-	my $file = "cgi_test_$script_number.cgi";
+	my $test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
@@ -408,16 +522,16 @@ sub {
       or die "Can't redirect STDERR to STDERR-redirected: $!\n";
 
 		#	First run should die after printing some output
-		`perl $file args`;
+		`$PERL $test_script args`;
 
     open STDERR,">&OLDSTDERR" or die "Can't restore STDERR: $!\n";
 
     # Make sure there is nothing in the cache
 		die "A script that called a redirected die() resulted in cached content."
-		  if defined $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY);
+		  if defined $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
 
 		#	Now run successfully and make sure the cached content is there
-		my $script_results_2 = `perl $file`;
+		my $script_results_2 = `$PERL $test_script`;
 
     # Get the real answer and compare that to what test generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
@@ -426,7 +540,7 @@ sub {
 		  if $real_results ne $script_results_2;
 	};
 
-	unlink "$file";
+	unlink "$test_script";
 	unlink "STDERR-redirected";
 
 	($@ eq '') ? 1 : 0;
@@ -434,18 +548,18 @@ sub {
 
 # Test 12: test that invalidate_cache_entry() removes the cache entry
 sub {
-  my ($script_number,$file);
+  my ($script_number,$test_script);
 
   # Do the first run to set up the cached data
   $script_number = 1;
-	$file = "cgi_test_$script_number.cgi";
+	$test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
-		my $script_results = `perl $file`;
+		my $script_results = `perl $test_script`;
 
     # Get the real answer and compare that to what the script generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
@@ -454,25 +568,25 @@ sub {
 			die "Test script didn't compute the right content.";
 
     # Now compare the real answer to what was cached
-		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
 			die "Cache file didn't have right content.";
   };
 
-	unlink "$file";
+	unlink "$test_script";
 
 	return 0 unless $@ eq '';
 
   # Now run a script that invalidates the previous cached content before
   # printing new cached content
   $script_number = 7;
-	$file = "cgi_test_$script_number.cgi";
+	$test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
-		my $script_results = `perl $file`;
+		my $script_results = `perl $test_script`;
 
     # Get the real answer and compare that to what the script generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
@@ -481,11 +595,11 @@ sub {
 			die "Test script didn't compute the right content.";
 
     # Now compare the real answer to what was cached
-		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
 			die "Cache file didn't have right content.";
 	};
 
-	unlink "$file";
+	unlink "$test_script";
 
 	($@ eq '') ? 1 : 0;
 },
@@ -493,25 +607,25 @@ sub {
 # Test 13: test pause() and continue()
 sub {
   my $script_number = 8;
-	my $file = "cgi_test_$script_number.cgi";
+	my $test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
     # Run it once to get the full output but only cache the specified parts.
-		`perl $file`;
+		`perl $test_script`;
 
     # Get the real answer and compare that to what the script generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
 
     # Now compare the real answer to what was cached
-		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
 			die "Cache file didn't have right content.";
 	};
 
-	unlink "$file";
+	unlink "$test_script";
 
 	($@ eq '') ? 1 : 0;
 },
@@ -519,25 +633,190 @@ sub {
 # Test 14: test buffer() with multiple arguments
 sub {
   my $script_number = 8;
-	my $file = "cgi_test_$script_number.cgi";
+	my $test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
     # Run it once to get the full output but only cache the specified parts.
-		`perl $file`;
+		`perl $test_script`;
 
     # Get the real answer and compare that to what the script generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
 
     # Now compare the real answer to what was cached
-		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
 			die "Cache file didn't have right content.";
 	};
 
-	unlink "$file";
+	unlink "$test_script";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 15: caching with default attributes. (set handles)
+sub {
+	return time_script(10);
+},
+
+# Test 16: that a script with an error doesn't cache output. (set handles)
+sub {
+  my $script_number = 11;
+
+	my $test_script = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
+
+	$@ = '';
+	eval {
+    # Save STDERR and redirect temporarily to nothing. This will prevent the
+    # test script from emitting output to STDERR
+    use vars qw(*OLDSTDERR);
+    open OLDSTDERR,">&STDERR" or die "Can't save STDERR: $!\n";
+    open STDERR,">STDERR-redirected"
+      or die "Can't redirect STDERR to STDERR-redirected: $!\n";
+
+		#	First run should die after printing some output
+		`$PERL $test_script args`;
+
+    open STDERR,">&OLDSTDERR" or die "Can't restore STDERR: $!\n";
+
+    # Make sure there is nothing in the cache
+		die "A script with an error resulted in cached content."
+		  if defined $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
+
+		#	Now run successfully and make sure the cached content is there
+		my $script_results_2 = `$PERL $test_script`;
+
+    # Get the real answer and compare that to what test generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+		die "Second run of test script didn't return the correct content."
+		 if $real_results ne $script_results_2;
+
+		die "Cache file didn't have right content."
+		 if $real_results ne $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
+	};
+
+	unlink "$test_script";
+	unlink "STDERR-redirected";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 17: that stop() actually stops caching output. (set handles)
+sub {
+  my $script_number = 12;
+
+	my $test_script = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
+
+	$@ = '';
+	eval {
+		#	First run should print to STDOUT but only cache part of it
+		my $script_output = `$PERL $test_script`;
+
+    # Get the real STDOUT and compare that to what test generated
+    my $real_output_results = $TEST_SCRIPTS{$script_number}[1][1];
+
+		die "Test script didn't output the correct content to STDOUT."
+		  if $real_output_results ne $script_output;
+
+    # Get the real cached data and compare that to what test generated
+    my $real_cache_results = $TEST_SCRIPTS{$script_number}[1][0];
+
+		die "Cache file didn't have right content."
+		  if $real_cache_results ne $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
+	};
+
+	unlink "$test_script";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 18: test pause() and continue(). (set handles)
+sub {
+  my $script_number = 13;
+	my $test_script = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
+
+	$@ = '';
+	eval {
+    # Run it once to get the full output but only cache the specified parts.
+		`perl $test_script`;
+
+    # Get the real answer and compare that to what the script generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+    # Now compare the real answer to what was cached
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
+			die "Cache file didn't have right content.";
+	};
+
+	unlink "$test_script";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 19: Output to filehandle other than STDOUT
+sub {
+  my $script_number = 9;
+	my $test_script = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
+
+	$@ = '';
+	eval {
+		my $script_results = `perl $test_script`;
+
+    # Get the real answer and compare that to what the script generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+		("RESULTS: $real_results" eq $script_results) ||
+			die "Test script didn't compute the right content.";
+
+    # Now compare the real answer to what was cached
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
+			die "Cache file didn't have right content.";
+	};
+
+	unlink "$test_script";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 20: Monitor a filehandle other than STDOUT
+sub {
+  my $script_number = 14;
+	my $test_script = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
+
+	$@ = '';
+	eval {
+		my $script_results = `perl $test_script`;
+
+    # Get the real answer and compare that to what the script generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+		("${real_results}RESULTS: \n" eq $script_results) ||
+			die "Test script didn't compute the right content.";
+
+    # Now compare the real answer to what was cached
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
+			die "Cache file didn't have right content.";
+	};
+
+	unlink "$test_script";
 
 	($@ eq '') ? 1 : 0;
 },
@@ -551,17 +830,17 @@ sub time_script
 {
   my $script_number = shift;
 
-	my $file = "cgi_test_$script_number.cgi";
+	my $test_script = "cgi_test_$script_number.cgi";
 
-  write_script($script_number,$file);
-  setup_cache($script_number,$file);
+  write_script($script_number,$test_script);
+  setup_cache($script_number,$test_script);
 
 	$@ = '';
 	eval {
 		#	First run should take longer & create cache file
 		my $t1 = time;
 
-		my $script_results = `perl $file`;
+		my $script_results = `$PERL $test_script`;
 
 		$t1 = time - $t1;
 
@@ -572,13 +851,13 @@ sub time_script
 			die "Test script didn't compute the right content.";
 
     # Now compare the real answer to what was cached
-		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+		($real_results eq $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)) ||
 			die "Cache file didn't have right content.";
 
 		#	Second run should be short, but return output from cache
 		my $t2 = time;
 
-		my $script_results_2 = `perl $file`;
+		my $script_results_2 = `$PERL $test_script`;
 
 		$t2 = time - $t2;
 
@@ -594,7 +873,7 @@ sub time_script
 		}
 	};
 
-	unlink "$file";
+	unlink "$test_script";
 
 	($@ eq '') ? 1 : 0;
 }
@@ -604,9 +883,9 @@ sub time_script
 sub write_script
 {
 	my $script_number = shift;
-	my $file = shift;
+	my $test_script = shift;
 
-	open(FH,">$file") || die "Can't open file \"$file\". $!\n";
+	open(FH,">$test_script") || die "Can't open file \"$test_script\". $!\n";
 	print FH $TEST_SCRIPTS{$script_number}[0];
 	close FH;
 }
@@ -616,20 +895,20 @@ sub write_script
 sub setup_cache
 {
   my $script_number = shift;
-  my $file = shift;
+  my $test_script = shift;
 
   # Setup the CGI::Cache the same way the test script does so that we
   # can clear the cache and then look at the cached info after the run.
   my ($cache_options) = $TEST_SCRIPTS{$script_number}[0] =~ /setup\((.*?)\)/s;
   my ($cache_key) = $TEST_SCRIPTS{$script_number}[0] =~ /set_key\((.*?)\)/s;
 
-  $ENV{SCRIPT_NAME} = $file;
+  $ENV{SCRIPT_NAME} = $test_script;
 
   eval "CGI::Cache::setup($cache_options)";
   eval "CGI::Cache::set_key($cache_key)";
 
   # Clear the cache to start the test
-  $CGI::Cache::CACHE->clear();
+  $CGI::Cache::THE_CACHE->clear();
 }
 
 # ----------------------------------------------------------------------------

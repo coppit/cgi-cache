@@ -22,6 +22,26 @@ EOF
 
   exit 1 if $answer =~ /^n/i;
 }
+elsif (eval "require CGI::Cache" && $CGI::Cache::VERSION <= 1.20)
+{
+  print <<EOF;
+WARNING!
+
+The interface to CGI::Cache has changed slightly in this version. Any
+scripts developed using previous versions CGI::Cache will likely not
+work.
+
+Do you want to continue installing CGI::Cache?
+EOF
+
+  my $answer;
+  do
+  {
+    $answer = <STDIN>;
+  } until $answer =~ /^[yn]/i;
+
+  exit 1 if $answer =~ /^n/i;
+}
 
 # Have to do this because MakeMaker and POSIX collide because someone used
 # @EXPORT when they should have used @EXPORT_OK. See
@@ -38,7 +58,7 @@ WriteMakefile(
     'PREREQ_PM' => { 'File::Path' => 0,
                      'File::Spec' => 0,
                      'File::Spec::Functions' => 0,
-                     'File::Cache' => 0,
+                     'Cache::SizeAwareFileCache' => 0,
                      'Storable' => 0,
                      'IO::File' => 0,
     },
