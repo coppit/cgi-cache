@@ -1,4 +1,4 @@
-SUBJECT: CGI::Cache 1.30 released
+CGI::Cache 1.30 released
 
 Description:
 - Perl extension to cache output of time-intensive CGI scripts so that
@@ -17,3 +17,10 @@ Changes:
 - Corrected tie, tied, and untie syntax--apparently not a bug, although it
   should have been.
 
+See the README for additional notes.
+
+A complete change log is at:
+- http://cgicache.sourceforge.net/CHANGES
+
+Regards,
+David

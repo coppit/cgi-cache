@@ -1,60 +1,60 @@
-This file is not distributed with CGI::Cache. It outlines some notes for
+This file is not distributed with the module. It outlines some notes for
 developers readying a set of files for distribution.
 
 CVS CHECKOUT:
 $ export CVS_RSH=ssh
 $ cvs -z3 -d:ext:coppit@cvs.sourceforge.net:/cvsroot/cgicache co devel
 
-To test your distribution:
-$ make clean
-$ perl Makefile.PL
-$ make
-$ make test
-
-After the functional tests have passed, make the distribution file:
-$ make dist
-
 Checklist for a release:
 - Be sure to add new test cases for new features
 - Make sure version number increases.
 - Datestamp the changelog
-- Edit version number in README.
-- Add version changes to README and Changes.
-- Update MANIFEST if necessary
-- Make distribution file. (See above.)
+- Add version changes to README and CHANGES, anonymizing the notes in README.
+- Add new module dependencies to Makefile.PL, and update README
+- Update MANIFEST and MANIFEST.SKIP if necessary.
+  $ make distcheck
+- Test your distribution:
+  $ make realclean
+  $ perl Makefile.PL
+  $ make
+  $ make test
+- After the tests have passed, make the distribution file:
+  $ make dist
 - Install the distribution file elsewhere to test it.
-  - scp CGI-Cache-X.XX.tar.gz coppit@linux.compile.sourceforge.net:.
-  - ssh -l coppit linux.sourceforge.net
-  or lately:
-  - scp CGI-Cache-X.XX.tar.gz coppit@linux.sourceforge.net:.
-  - ssh -l coppit linux.sourceforge.net
-
-  - scp CGI-Cache-X.XX.tar.gz coppit@bsd.compile.sourceforge.net:.
-  - ssh -l coppit bsd.compile.sourceforge.net
-  or lately:
-  - scp CGI-Cache-X.XX.tar.gz coppit@bsd.sourceforge.net:.
-  - ssh -l coppit bsd.sourceforge.net
-- Check in code:
-  $ cvs ci
-    (use your userid instead of coppit)
+  $ scp CGI-Cache-X.XX.tar.gz coppit@linux.sourceforge.net:.
+  $ ssh -l coppit linux.sourceforge.net
+  $ tar xvfz CGI-Cache-X.XX.tar.gz
+  $ cd CGI-Cache-X.XX
+  $ perl Makefile.PL
+  $ make
+  $ make test
+- Update CHANGES file, and copy to server:
+  $ scp CHANGES coppit@cgicache.sourceforge.net:/home/groups/c/cg/cgicache/htdocs
+  (Use your username instead of coppit)
 - Upload to CPAN:
-  http://pause.perl.org/pause/authenquery
-- Upload changelog:
-  scp Changes coppit@cgicache.sourceforge.net:/home/groups/c/cg/cgicache/htdocs
+    http://pause.perl.org/pause/authenquery
+  or
+    cpan-upload CGI-Cache-X.XX.tar.gz
 - Upload to SourceForge:
-  ncftpput upload.sourceforge.net /incoming CGI-Cache-X.XX.tar.gz
-- Release file on SourceForge:
+- Release file:
   http://sourceforge.net/account/login.php
-  https://sourceforge.net/project/admin/qrs.php?package_id=&group_id=14586
+  ncftpput upload.sf.net incoming CGI-Cache-X.XX.tar.gz
+  http://sourceforge.net/project/admin/editpackages.php?group_id=14586
 - Announce news on SourceForge:
   http://sourceforge.net/news/submit.php?group_id=14586
 - Update webpage:
-  scp coppit@cgicache.sourceforge.net:/home/groups/c/cg/cgicache/htdocs/index.html .
-  [edit URL & version]
-  scp index.html coppit@cgicache.sourceforge.net:/home/groups/c/cg/cgicache/htdocs/
-  rm index.htm
+  $ ssh -t coppit@cgicache.sf.net 'vim /home/groups/c/cg/cgicache/htdocs/index.html'
 - Announce on freshmeat:
-  http://freshmeat.net/add-release/1180/
+  http://freshmeat.net/login/
+  [search for CGI::Cache, select add release]
 - Announce it to cgicache-announce@sourceforge.net and to
   comp.lang.perl.announce.
-
+- Copy current code to old in devel
+  $ cd devel
+  $ rm -rf old
+  $ cp -r lib old
+  $ rm -rf `find old -name CVS`
+- Check in code:
+  $ cvs ci
+- Tag the release for easy retrieval later
+  $ cvs tag "v1_11"
