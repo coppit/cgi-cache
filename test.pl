@@ -281,7 +281,7 @@ EOF
 use lib './blib/lib';
 use CGI::Cache;
 
-CGI::Cache::setup( { output_enabled_while_caching => 0 } );
+CGI::Cache::setup( { enable_output => 0 } );
 CGI::Cache::set_key('test key');
 CGI::Cache::start() or exit;
 
