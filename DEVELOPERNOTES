@@ -1,9 +1,9 @@
-CVS CHECKOUT:
-- $ export CVS_RSH=ssh
-  $ cvs -z3 -d:ext:coppit@cvs.sourceforge.net:/cvsroot/cgicache co devel
-
 This file is not distributed with CGI::Cache. It outlines some notes for
 developers readying a set of files for distribution.
+
+CVS CHECKOUT:
+$ export CVS_RSH=ssh
+$ cvs -z3 -d:ext:coppit@cvs.sourceforge.net:/cvsroot/cgicache co devel
 
 To test your distribution:
 $ make clean
@@ -16,13 +16,10 @@ $ make dist
 
 Checklist for a release:
 - Be sure to add new test cases for new features
-- Diff with the script in the devel directory to make sure everything's
-  kosher:
-  $ ./nocvsdiff -r ../devel ../dist | less
 - Make sure version number increases.
 - Datestamp the changelog
 - Edit version number in README.
-- Add version changes to README and CHANGES.
+- Add version changes to README and Changes.
 - Update MANIFEST if necessary
 - Make distribution file. (See above.)
 - Install the distribution file elsewhere to test it.

@@ -3,6 +3,7 @@ Revision history for Perl extension CGI::Cache.
 [Should really use Tie::Restore]
 
 1.41 Mon May 24 08:49:05 EDT 2004
+- Updated Makefile.PL
 - Fixed an incompatibility with modules like CGI::Carp that override
   CORE::GLOBALS::die, a new feature since about perl 5.6.1 (thanks to David
   Link <dvlink@yahoo.com> for the bug report)

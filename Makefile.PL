@@ -1,9 +1,89 @@
+#!/usr/bin/perl
+# use perl                                  -*- mode: Perl; -*-
+
+use strict;
 use ExtUtils::MakeMaker;
 
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+unless ((grep {/^PREFIX=/} @ARGV) || (grep {/^INSTALLDIRS=/} @ARGV))
+{
+  @ARGV = Set_Install_Options(@ARGV);
+}
 
-Verify_OK_To_Install() unless grep { /^FORCE_INSTALL$/ } @ARGV;
+print "\n","-"x78,"\n\n";
+
+my %makefile_attributes = Compute_Makefile_Attributes();
+
+WriteMakefile( %makefile_attributes );
+
+print "\n","-"x78,"\n\n";
+
+my %locations = Configure(@program_options);
+
+Check_Program_Prerequisites(%locations);
+
+exit;
+
+# --------------------------------------------------------------------------
+
+sub Set_Install_Options
+{
+  my @args = @_;
+
+  Verify_OK_To_Install();
+
+  my $install_location = ExtUtils::MakeMaker::prompt(
+    "Choose your installation type:\n[1] normal Perl locations\n" .
+    "[2] custom locations\n=>" => '1');
+
+  if ($install_location eq '2')
+  {
+    my $home = Get_Home_Directory();
+
+    print "\n","-"x78,"\n\n";
+
+    my $prefix = ExtUtils::MakeMaker::prompt(
+      "What PREFIX should I use?\n=>" => $home);
+
+    push @args,"PREFIX=$prefix";
+  }
+
+  return @args;
+}
+
+# --------------------------------------------------------------------------
+
+sub Compute_Makefile_Attributes
+{
+  # Have to do this because MakeMaker and POSIX collide because someone used
+  # @EXPORT when they should have used @EXPORT_OK. See
+  # http://www.deja.com/=dnt_mn/getdoc.xp?AN=469218990&fmt=text
+  unless (eval "require POSIX")
+  {
+    print "Warning: prerequisite POSIX 0 not found\n";
+  }
+
+  my %makefile_attributes = (
+    'NAME'	=> 'CGI::Cache',
+    'VERSION_FROM' => 'lib/CGI/Cache.pm',
+
+    'PM'        => {
+      'lib/CGI/Cache.pm' => '$(INST_LIB)/CGI/Cache.pm',
+    },
+    'PREREQ_PM' => { 'Storable' => 0, 'FileHandle::Unget' => 0, },
+    'PREREQ_PM' => { 'File::Path' => 0,
+                     'File::Spec' => 0,
+                     'File::Spec::Functions' => 0,
+                     'Cache::SizeAwareFileCache' => 0,
+                     'Storable' => 0,
+                     'IO::File' => 0,
+    },
+    'EXE_FILES' => [ ],
+  );
+
+  return %makefile_attributes;
+}
+
+# --------------------------------------------------------------------------
 
 sub Verify_OK_To_Install
 {
@@ -48,55 +128,3 @@ EOF
   }
 }
 
-
-# Have to do this because MakeMaker and POSIX collide because someone used
-# @EXPORT when they should have used @EXPORT_OK. See
-# http://www.deja.com/=dnt_mn/getdoc.xp?AN=469218990&fmt=text
-unless (eval "require POSIX")
-{
-  print "Warning: prerequisite POSIX 0 not found\n";
-}
-
-@ARGV = Set_Install_Options(@ARGV)
-  unless (grep {/^PREFIX=/} @args) || (grep {/^INSTALLDIRS=/} @args);
-
-WriteMakefile(
-    'EXE_FILES' => [ ],
-    'NAME'	=> 'CGI::Cache',
-    'VERSION_FROM' => 'lib/CGI/Cache.pm',
-    'PM'        => {
-      'lib/CGI/Cache.pm' => '$(INST_LIB)/CGI/Cache.pm',
-    },
-    'PREREQ_PM' => { 'File::Path' => 0,
-                     'File::Spec' => 0,
-                     'File::Spec::Functions' => 0,
-                     'Cache::SizeAwareFileCache' => 0,
-                     'Storable' => 0,
-                     'IO::File' => 0,
-    },
-);
-
-# --------------------------------------------------------------------------
-
-sub Set_Install_Options
-{
-  my @args = @_;
-
-  my $install_location = ExtUtils::MakeMaker::prompt(
-    "Choose your installation type:\n[1] normal Perl locations\n" .
-    "[2] custom locations\n=>" => '1');
-
-  if ($install_location eq '2')
-  {
-    my $home = Get_Home_Directory();
-
-    print "\n","-"x78,"\n\n";
-
-    my $prefix = ExtUtils::MakeMaker::prompt(
-      "What PREFIX should I use?\n=>" => $home);
-
-    push @args,"PREFIX=$prefix";
-  }
-
-  return @args;
-}
