@@ -273,7 +273,7 @@ close FH;
 
 unlink "TEST.OUT";
 
-print "RESULTS: $results\n";
+print "RESULTS: $results";
 EOF
          "Test output 1\n"],
 
@@ -808,7 +808,7 @@ sub {
     # Get the real answer and compare that to what the script generated
     my $real_results = $TEST_SCRIPTS{$script_number}[1];
 
-		("${real_results}RESULTS: \n" eq $script_results) ||
+		("RESULTS: $real_results" eq $script_results) ||
 			die "Test script didn't compute the right content.";
 
     # Now compare the real answer to what was cached
