@@ -1,0 +1,63 @@
+CVS CHECKOUT:
+- $ export CVS_RSH=ssh
+  $ cvs -z3 -d:ext:coppit@cvs.sourceforge.net:/cvsroot/cgicache co devel
+
+This file is not distributed with CGI::Cache. It outlines some notes for
+developers readying a set of files for distribution.
+
+To test your distribution:
+$ make clean
+$ perl Makefile.PL
+$ make
+$ make test
+
+After the functional tests have passed, make the distribution file:
+$ make dist
+
+Checklist for a release:
+- Be sure to add new test cases for new features
+- Diff with the script in the devel directory to make sure everything's
+  kosher:
+  $ ./nocvsdiff -r ../devel ../dist | less
+- Make sure version number increases.
+- Datestamp the changelog
+- Edit version number in README.
+- Add version changes to README and CHANGES.
+- Update MANIFEST if necessary
+- Make distribution file. (See above.)
+- Install the distribution file elsewhere to test it.
+  - scp CGI-Cache-X.XX.tar.gz coppit@linux.compile.sourceforge.net:.
+  - ssh -l coppit linux.sourceforge.net
+  or lately:
+  - scp CGI-Cache-X.XX.tar.gz coppit@linux.sourceforge.net:.
+  - ssh -l coppit linux.sourceforge.net
+
+  - scp CGI-Cache-X.XX.tar.gz coppit@bsd.compile.sourceforge.net:.
+  - ssh -l coppit bsd.compile.sourceforge.net
+  or lately:
+  - scp CGI-Cache-X.XX.tar.gz coppit@bsd.sourceforge.net:.
+  - ssh -l coppit bsd.sourceforge.net
+- Check in code:
+  $ cvs ci
+    (use your userid instead of coppit)
+- Upload to CPAN:
+  http://pause.perl.org/pause/authenquery
+- Upload changelog:
+  scp Changes coppit@cgicache.sourceforge.net:/home/groups/c/cg/cgicache/htdocs
+- Upload to SourceForge:
+  ncftpput upload.sourceforge.net /incoming CGI-Cache-X.XX.tar.gz
+- Release file on SourceForge:
+  http://sourceforge.net/account/login.php
+  https://sourceforge.net/project/admin/qrs.php?package_id=&group_id=14586
+- Announce news on SourceForge:
+  http://sourceforge.net/news/submit.php?group_id=14586
+- Update webpage:
+  scp coppit@cgicache.sourceforge.net:/home/groups/c/cg/cgicache/htdocs/index.html .
+  [edit URL & version]
+  scp index.html coppit@cgicache.sourceforge.net:/home/groups/c/cg/cgicache/htdocs/
+  rm index.htm
+- Announce on freshmeat:
+  http://freshmeat.net/add-release/1180/
+- Announce it to cgicache-announce@sourceforge.net and to
+  comp.lang.perl.announce.
+

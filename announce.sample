@@ -1,0 +1,19 @@
+SUBJECT: CGI::Cache 1.30 released
+
+Description:
+- Perl extension to cache output of time-intensive CGI scripts so that
+  subsequent visits to such scripts will not cost as much time.
+
+Download:
+- You can download CGI::Cache from CPAN:
+  http://www.cpan.org/authors/id/D/DC/DCOPPIT/CGI-Cache-1.30.tar.gz
+- Until the file propagates to the mirrors, you can use the following URL:
+  http://prdownloads.sourceforge.net/cgicache/CGI-Cache-1.30.tar.gz
+
+Changes:
+- Added enable_output feature.
+- Verified SpeedyCGI compatibility.
+- Added a new section on use in persistent environments.
+- Corrected tie, tied, and untie syntax--apparently not a bug, although it
+  should have been.
+

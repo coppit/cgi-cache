@@ -57,10 +57,16 @@ unless (eval "require POSIX")
   print "Warning: prerequisite POSIX 0 not found\n";
 }
 
+@ARGV = Set_Install_Options(@ARGV)
+  unless (grep {/^PREFIX=/} @args) || (grep {/^INSTALLDIRS=/} @args);
 
 WriteMakefile(
+    'EXE_FILES' => [ ],
     'NAME'	=> 'CGI::Cache',
-    'VERSION_FROM' => 'Cache.pm', # finds $VERSION
+    'VERSION_FROM' => 'lib/CGI/Cache.pm',
+    'PM'        => {
+      'lib/CGI/Cache.pm' => '$(INST_LIB)/CGI/Cache.pm',
+    },
     'PREREQ_PM' => { 'File::Path' => 0,
                      'File::Spec' => 0,
                      'File::Spec::Functions' => 0,
@@ -69,3 +75,28 @@ WriteMakefile(
                      'IO::File' => 0,
     },
 );
+
+# --------------------------------------------------------------------------
+
+sub Set_Install_Options
+{
+  my @args = @_;
+
+  my $install_location = ExtUtils::MakeMaker::prompt(
+    "Choose your installation type:\n[1] normal Perl locations\n" .
+    "[2] custom locations\n=>" => '1');
+
+  if ($install_location eq '2')
+  {
+    my $home = Get_Home_Directory();
+
+    print "\n","-"x78,"\n\n";
+
+    my $prefix = ExtUtils::MakeMaker::prompt(
+      "What PREFIX should I use?\n=>" => $home);
+
+    push @args,"PREFIX=$prefix";
+  }
+
+  return @args;
+}

@@ -36,7 +36,7 @@ $THE_CACHE_KEY = undef;
 $THE_CACHE = undef;
 
 # Path to cache. Used by test harness to clean things up.
-$CACHE_PATH;
+$CACHE_PATH = '';
 
 # The temporarily stored output
 $THE_CAPTURED_OUTPUT = '';
@@ -65,39 +65,58 @@ $ERROR_HANDLE = undef;
 my $OLD_STDOUT_TIE = undef;
 my $OLD_STDERR_TIE = undef;
 
+# Overwrite the CORE warn and die
+my ($OLD_WARN,$OLD_DIE);
+BEGIN
+{
+  $OLD_WARN = \&CORE::GLOBAL::warn;
+  $OLD_DIE = \&CORE::GLOBAL::die;
+
+  *CORE::GLOBAL::warn = \&CGI::Cache::CGI_Cache_warn;
+  *CORE::GLOBAL::die = \&CGI::Cache::CGI_Cache_die;
+}
+
 # The original warn and die handlers
-my $OLD_WARN = undef;
-my $OLD_DIE = undef;
+my $OLD_WARN_SIG = undef;
+my $OLD_DIE_SIG = undef;
 
 # --------------------------------------------------------------------------
 
+# For some reason $OLD_WARN = \&CGI_Cache_warn if it wasn't previously
+# overridden. This results in infinite recursion, which we detect and avoid.
+
 sub CGI_Cache_warn
 {
-  $CALLED_WARN_OR_DIE = 1;
+  my ($subroutine) = (caller(1))[3]; 
 
-  if ( defined $OLD_WARN )
+  if ($subroutine eq __PACKAGE__ . '::CGI_Cache_warn')
   {
-    &$OLD_WARN( @_ );
+    CORE::warn( @_ );
   }
   else
   {
-    CORE::warn( @_ );
+    $CALLED_WARN_OR_DIE = 1;
+    &$OLD_WARN( @_ );
   }
 }
 
 # --------------------------------------------------------------------------
 
+# For some reason $OLD_DIE = \&CGI_Cache_die if it wasn't previously
+# overridden. This results in infinite recursion, which we detect and avoid.
+
 sub CGI_Cache_die
 {
-  $CALLED_WARN_OR_DIE = 1;
+  my ($subroutine) = (caller(1))[3]; 
 
-  if ( defined $OLD_DIE )
+  if ($subroutine eq __PACKAGE__ . '::CGI_Cache_die')
   {
-    &$OLD_DIE( @_ );
+    CORE::die( @_ );
   }
   else
   {
-    CORE::die( @_ );
+    $CALLED_WARN_OR_DIE = 1;
+    &$OLD_DIE( @_ );
   }
 }
 
@@ -346,13 +365,13 @@ sub _bind
     # don't want to call ourselves if the user calls setup twice!)
     if ( $main::SIG{__WARN__} ne \&CGI_Cache_warn )
     {
-      $OLD_WARN = $main::SIG{__WARN__} if $main::SIG{__WARN__} ne '';
+      $OLD_WARN_SIG = $main::SIG{__WARN__} if $main::SIG{__WARN__} ne '';
       $main::SIG{__WARN__} = \&CGI_Cache_warn;
     }
 
     if ( $main::SIG{__DIE__} ne \&CGI_Cache_die )
     {
-      $OLD_DIE = $main::SIG{__DIE__} if $main::SIG{__DIE__} ne '';
+      $OLD_DIE_SIG = $main::SIG{__DIE__} if $main::SIG{__DIE__} ne '';
       $main::SIG{__DIE__} = \&CGI_Cache_die;
     }
   }
@@ -391,10 +410,10 @@ sub _unbind
       undef $OLD_STDERR_TIE;
     }
 
-    $main::SIG{__DIE__} = $OLD_DIE;
-    undef $OLD_DIE;
-    $main::SIG{__WARN__} = $OLD_WARN; 
-    undef $OLD_WARN;
+    $main::SIG{__DIE__} = $OLD_DIE_SIG if defined $OLD_DIE_SIG;
+    undef $OLD_DIE_SIG;
+    $main::SIG{__WARN__} = $OLD_WARN_SIG if defined $OLD_WARN_SIG; 
+    undef $OLD_WARN_SIG;
   }
 }
 
@@ -545,9 +564,7 @@ __END__
 
 =head1 NAME
 
-CGI::Cache - Perl extension to help cache output of time-intensive CGI
-scripts so that subsequent visits to such scripts will not cost as
-much time.
+CGI::Cache - Perl extension to help cache output of time-intensive CGI scripts
 
 =head1 WARNING
 
@@ -574,7 +591,7 @@ Here's a simple example:
 
   # This should short-circuit the rest of the loop if a cache value is
   # already there
-  CGI::Cache::start();
+  CGI::Cache::start() or exit;
 
   print $cgi->header, "\n";
 
@@ -682,7 +699,7 @@ specially construct the key.
 
 For example, say we have a CGI script "airport" that computes the
 number of miles between major airports. You supply two airport codes
-to the script and it builds a web pages that reports the number of
+to the script and it builds a web page that reports the number of
 miles by air between those two locations. In addition, there is a
 third parameter which tells the script whether to write debugging
 information to a log file. Suppose the URL for Indianapolis Int'l to
