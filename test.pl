@@ -19,7 +19,7 @@ use File::Path;
 use strict;
 use vars qw( %TEST_SCRIPTS $VERSION );
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 # ----------------------------------------------------------------------------
 
@@ -115,6 +115,53 @@ print "Test output 6\n";
 die "STDERR!" if @ARGV;
 EOF
          "Test output 6\n"],
+
+  7 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+CGI::Cache::setup( { username => '',
+                     filemode => 0666,
+                     max_size => 20 * 1024 * 1024,
+                     expires_in => 6 * 60 * 60,
+                   } );
+CGI::Cache::set_key( ['test key',1,2] );
+CGI::Cache::invalidate_cache_entry();
+CGI::Cache::start();
+
+print "Test output 2\n";
+EOF
+         "Test output 2\n"],
+
+  8 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+CGI::Cache::setup();
+CGI::Cache::set_key( 'test key' );
+CGI::Cache::start();
+
+print "Test output 1\n";
+CGI::Cache::pause();
+print "Uncached output\n";
+CGI::Cache::continue();
+print "Test output 2\n";
+EOF
+         "Test output 1\nTest output 2\n"],
+
+  9 => [<<'EOF',
+use lib './blib/lib';
+use CGI::Cache;
+
+CGI::Cache::setup();
+CGI::Cache::set_key( 'test key' );
+CGI::Cache::start();
+
+print "Test output 1\n";
+CGI::Cache::buffer( "Rewritten output 1\n", "Rewritten output 2\n" );
+print "Test output 2\n";
+EOF
+         "Rewritten output 1\nRewritten output 2\nTest output 2\n"],
 
 );
 
@@ -212,7 +259,8 @@ sub {
 	return time_script(1);
 },
 
-# Test 7: caching with some custom attributes, and with a complex data structure
+# Test 7: caching with some custom attributes, and with a complex data
+# structure
 sub {
 	return time_script(2);
 },
@@ -380,6 +428,116 @@ sub {
 
 	unlink "$file";
 	unlink "STDERR-redirected";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 12: test that invalidate_cache_entry() removes the cache entry
+sub {
+  my ($script_number,$file);
+
+  # Do the first run to set up the cached data
+  $script_number = 1;
+	$file = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$file);
+  setup_cache($script_number,$file);
+
+	$@ = '';
+	eval {
+		my $script_results = `perl $file`;
+
+    # Get the real answer and compare that to what the script generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+		($real_results eq $script_results) ||
+			die "Test script didn't compute the right content.";
+
+    # Now compare the real answer to what was cached
+		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+			die "Cache file didn't have right content.";
+  };
+
+	unlink "$file";
+
+	return 0 unless $@ eq '';
+
+  # Now run a script that invalidates the previous cached content before
+  # printing new cached content
+  $script_number = 7;
+	$file = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$file);
+  setup_cache($script_number,$file);
+
+	$@ = '';
+	eval {
+		my $script_results = `perl $file`;
+
+    # Get the real answer and compare that to what the script generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+		($real_results eq $script_results) ||
+			die "Test script didn't compute the right content.";
+
+    # Now compare the real answer to what was cached
+		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+			die "Cache file didn't have right content.";
+	};
+
+	unlink "$file";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 13: test pause() and continue()
+sub {
+  my $script_number = 8;
+	my $file = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$file);
+  setup_cache($script_number,$file);
+
+	$@ = '';
+	eval {
+    # Run it once to get the full output but only cache the specified parts.
+		`perl $file`;
+
+    # Get the real answer and compare that to what the script generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+    # Now compare the real answer to what was cached
+		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+			die "Cache file didn't have right content.";
+	};
+
+	unlink "$file";
+
+	($@ eq '') ? 1 : 0;
+},
+
+# Test 14: test buffer() with multiple arguments
+sub {
+  my $script_number = 8;
+	my $file = "cgi_test_$script_number.cgi";
+
+  write_script($script_number,$file);
+  setup_cache($script_number,$file);
+
+	$@ = '';
+	eval {
+    # Run it once to get the full output but only cache the specified parts.
+		`perl $file`;
+
+    # Get the real answer and compare that to what the script generated
+    my $real_results = $TEST_SCRIPTS{$script_number}[1];
+
+    # Now compare the real answer to what was cached
+		($real_results eq $CGI::Cache::CACHE->get($CGI::Cache::CACHE_KEY)) ||
+			die "Cache file didn't have right content.";
+	};
+
+	unlink "$file";
 
 	($@ eq '') ? 1 : 0;
 },
