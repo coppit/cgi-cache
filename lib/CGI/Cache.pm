@@ -7,9 +7,10 @@ use File::Path;
 use File::Spec;
 use File::Spec::Functions qw( tmpdir );
 use Cache::SizeAwareFileCache;
+use Tie::Restore;
 use Storable qw( freeze );
 
-$VERSION = '1.40';
+$VERSION = '1.41';
 
 # --------------------------------------------------------------------------
 
@@ -65,16 +66,13 @@ $ERROR_HANDLE = undef;
 my $OLD_STDOUT_TIE = undef;
 my $OLD_STDERR_TIE = undef;
 
-# Overwrite the CORE warn and die
-my ($OLD_WARN,$OLD_DIE);
-BEGIN
-{
-  $OLD_WARN = \&CORE::GLOBAL::warn;
-  $OLD_DIE = \&CORE::GLOBAL::die;
-
-  *CORE::GLOBAL::warn = \&CGI::Cache::CGI_Cache_warn;
-  *CORE::GLOBAL::die = \&CGI::Cache::CGI_Cache_die;
-}
+# Overwrite the CORE warn and die. Sometime after 5.6.1, modules like
+# CGI::Carp started using CORE::GLOBAL::die instead of $SIG{__DIE__} to
+# override the default die. This "use subs" will handle this new way of doing
+# things. In addition, we later point $SIG{__DIE__} to our die implementation.
+# NOTE: I'm not sure what will happen if someone sets CORE::GLOBAL::die *and*
+# $SIG{__DIE__}
+use subs qw( warn die );
 
 # The original warn and die handlers
 my $OLD_WARN_SIG = undef;
@@ -82,41 +80,37 @@ my $OLD_DIE_SIG = undef;
 
 # --------------------------------------------------------------------------
 
-# For some reason $OLD_WARN = \&CGI_Cache_warn if it wasn't previously
-# overridden. This results in infinite recursion, which we detect and avoid.
-
-sub CGI_Cache_warn
+sub warn
 {
-  my ($subroutine) = (caller(1))[3]; 
+  $CALLED_WARN_OR_DIE = 1;
 
-  if ($subroutine eq __PACKAGE__ . '::CGI_Cache_warn')
+  # $OLD_WARN_SIG will be defined if the previously defined handler was set
+  # using signals. Otherwise it will have no effect.
+  if ($OLD_WARN_SIG)
   {
-    CORE::warn( @_ );
+    &$OLD_WARN_SIG(@_);
   }
   else
   {
-    $CALLED_WARN_OR_DIE = 1;
-    &$OLD_WARN( @_ );
+    CORE::warn(@_);
   }
 }
 
 # --------------------------------------------------------------------------
 
-# For some reason $OLD_DIE = \&CGI_Cache_die if it wasn't previously
-# overridden. This results in infinite recursion, which we detect and avoid.
-
-sub CGI_Cache_die
+sub die
 {
-  my ($subroutine) = (caller(1))[3]; 
+  $CALLED_WARN_OR_DIE = 1;
 
-  if ($subroutine eq __PACKAGE__ . '::CGI_Cache_die')
+  # $OLD_DIE_SIG will be defined if the previously defined handler was set
+  # using signals. Otherwise it will have no effect.
+  if ($OLD_DIE_SIG)
   {
-    CORE::die( @_ );
+    &$OLD_DIE_SIG(@_);
   }
   else
   {
-    $CALLED_WARN_OR_DIE = 1;
-    &$OLD_DIE( @_ );
+    CORE::die(@_);
   }
 }
 
@@ -363,16 +357,16 @@ sub _bind
 
     # Store the previous warn() and die() handlers, unless they are ours. (We
     # don't want to call ourselves if the user calls setup twice!)
-    if ( $main::SIG{__WARN__} ne \&CGI_Cache_warn )
+    if ( $main::SIG{__WARN__} ne \&warn )
     {
       $OLD_WARN_SIG = $main::SIG{__WARN__} if $main::SIG{__WARN__} ne '';
-      $main::SIG{__WARN__} = \&CGI_Cache_warn;
+      $main::SIG{__WARN__} = \&warn;
     }
 
-    if ( $main::SIG{__DIE__} ne \&CGI_Cache_die )
+    if ( $main::SIG{__DIE__} ne \&die )
     {
       $OLD_DIE_SIG = $main::SIG{__DIE__} if $main::SIG{__DIE__} ne '';
-      $main::SIG{__DIE__} = \&CGI_Cache_die;
+      $main::SIG{__DIE__} = \&die;
     }
   }
 }
@@ -389,12 +383,7 @@ sub _unbind
   {
     untie *$WATCHED_OUTPUT_HANDLE;
 
-    if (defined $OLD_STDOUT_TIE)
-    {
-      tie ( *$WATCHED_OUTPUT_HANDLE, "CGI::Cache::RestoreTie",
-        $OLD_STDOUT_TIE );
-      undef $OLD_STDOUT_TIE;
-    }
+    tie *$WATCHED_OUTPUT_HANDLE, 'Tie::Restore', $OLD_STDOUT_TIE;
 
     $CAPTURING = 0;
   }
@@ -403,12 +392,7 @@ sub _unbind
   {
     untie *$WATCHED_ERROR_HANDLE;
 
-    if (defined $OLD_STDERR_TIE)
-    {
-      tie ( *$WATCHED_ERROR_HANDLE, "CGI::Cache::RestoreTie",
-        $OLD_STDERR_TIE );
-      undef $OLD_STDERR_TIE;
-    }
+    tie *$WATCHED_ERROR_HANDLE, 'Tie::Restore', $OLD_STDERR_TIE;
 
     $main::SIG{__DIE__} = $OLD_DIE_SIG if defined $OLD_DIE_SIG;
     undef $OLD_DIE_SIG;
@@ -447,18 +431,6 @@ sub buffer
 1;
 
 # ##########################################################################
-
-package CGI::Cache::RestoreTie;
-
-# If I wanted to be complete:
-# (*TIESCALAR, *TIEARRAY, *TIEHASH, *TIEHANDLE) =
-#   ( sub { $_[1] } ) x 4;
-
-sub TIEHANDLE { $_[1] }
-
-1;
-
-############################################################################
 
 package CGI::Cache::CatchSTDOUT;
 

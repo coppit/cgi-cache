@@ -15,12 +15,6 @@ my %makefile_attributes = Compute_Makefile_Attributes();
 
 WriteMakefile( %makefile_attributes );
 
-print "\n","-"x78,"\n\n";
-
-my %locations = Configure(@program_options);
-
-Check_Program_Prerequisites(%locations);
-
 exit;
 
 # --------------------------------------------------------------------------
@@ -71,6 +65,7 @@ sub Compute_Makefile_Attributes
     },
     'PREREQ_PM' => { 'Storable' => 0, 'FileHandle::Unget' => 0, },
     'PREREQ_PM' => { 'File::Path' => 0,
+                     'Tie::Restore' => 0,
                      'File::Spec' => 0,
                      'File::Spec::Functions' => 0,
                      'Cache::SizeAwareFileCache' => 0,
@@ -93,7 +88,9 @@ sub Verify_OK_To_Install
 WARNING!
 
 The interface to CGI::Cache has changed substantially in this version. Any
-scripts developed using previous versions CGI::Cache will NOT work.
+scripts developed using previous versions CGI::Cache will NOT work. You are
+seeing this message because an earlier, incompatible version of CGI::Cache has
+been detected.
 
 Do you want to continue installing CGI::Cache?
 EOF
@@ -111,9 +108,10 @@ EOF
     print <<EOF;
 WARNING!
 
-The interface to CGI::Cache has changed slightly in this version. Any
-scripts developed using previous versions CGI::Cache will likely not
-work.
+The interface to CGI::Cache has changed slightly in this version. Any scripts
+developed using previous versions CGI::Cache will likely not work. You are
+seeing this message because an earlier, incompatible version of CGI::Cache has
+been detected.
 
 Do you want to continue installing CGI::Cache?
 EOF

@@ -13,6 +13,8 @@ install this version.
 NEW IN THIS VERSION
 
 1.41
+- Now uses Tie::Restore instead my own version. It's a trivial dependency, but
+  reuse is good, right?
 - Updated Makefile.PL
 - Fixed an incompatibility with modules like CGI::Carp that override
   CORE::GLOBALS::die, a new feature since about perl 5.6.1

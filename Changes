@@ -1,12 +1,14 @@
 Revision history for Perl extension CGI::Cache.
 
-[Should really use Tie::Restore]
-
-1.41 Mon May 24 08:49:05 EDT 2004
+1.41 Wed Jun  9 13:50:09 EDT 2004
+- Now uses Tie::Restore instead my own version. It's a trivial dependency, but
+  reuse is good, right?
 - Updated Makefile.PL
 - Fixed an incompatibility with modules like CGI::Carp that override
   CORE::GLOBALS::die, a new feature since about perl 5.6.1 (thanks to David
-  Link <dvlink@yahoo.com> for the bug report)
+  Link <dvlink@yahoo.com> for the bug report, and thanks to Anno Siegel
+  <anno4000@lublin.zrz.tu-berlin.de> for explaining the right way to override
+  CORE::die)
 - Fixed uninitialized variable warnings (patch by Isaac Miller
   <isaac@soundscan.com>)
 - Fixed documentation typo (patch by Isaac Miller <isaac@soundscan.com>)
