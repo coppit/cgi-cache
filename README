@@ -6,10 +6,8 @@ that subsequent visits to such scripts will not take as much time.
 
 NEW IN THIS VERSION
 
-Version 1.4130: Tue Dec 21 2004
-- Improved test failure reporting
-- Fixed version numbers, which were incompatible with some modules.
-- Fixed some warnings and bugs in the two test cases.
+Version 1.4141: wed Dec 22 2004
+- Fixed a bug in timed testing 
 
 
 MODULE DEPENDENCIES

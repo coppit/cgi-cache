@@ -45,7 +45,7 @@ Checklist for a release:
   $ ssh -t coppit@cgicache.sf.net 'vim /home/groups/c/cg/cgicache/htdocs/index.html'
 - Announce on freshmeat:
   http://freshmeat.net/login/
-  [search for CGI::Cache, select add release]
+  http://freshmeat.net/projects/cgicache/
 - Announce it to cgicache-announce@sourceforge.net and to
   comp.lang.perl.announce.
 - Copy current code to old in devel
