@@ -70,7 +70,7 @@ $DIE = undef;
 # will not automatically be called if the script is exiting via a die
 # (detected by $? == 2).
 
-sub warn
+sub CGI_Cache_warn
 {
   $CALLED_WARN_OR_DIE = 1;
 
@@ -84,7 +84,7 @@ sub warn
   }
 }
 
-sub die
+sub CGI_Cache_die
 {
   $CALLED_WARN_OR_DIE = 1;
 
@@ -128,20 +128,20 @@ sub setup
 
   $CACHE = new File::Cache($options);
 
-  die "File::Cache::new failed\n" unless defined $CACHE;
+  CORE::die "File::Cache::new failed\n" unless defined $CACHE;
 
   # Store the previous warn() and die() handlers, unless they are ours. (We
   # don't want to call ourselves if the user calls setup twice!)
-  if ($main::SIG{__WARN__} ne \&CGI::Cache::warn)
+  if ($main::SIG{__WARN__} ne \&CGI::Cache::CGI_Cache_warn)
   {
     $WARN = $main::SIG{__WARN__};
-    $main::SIG{__WARN__} = \&CGI::Cache::warn;
+    $main::SIG{__WARN__} = \&CGI::Cache::CGI_Cache_warn;
   }
 
-  if ($main::SIG{__DIE__} ne \&CGI::Cache::die)
+  if ($main::SIG{__DIE__} ne \&CGI::Cache::CGI_Cache_die)
   {
     $DIE = $main::SIG{__DIE__};
-    $main::SIG{__DIE__} = \&CGI::Cache::die;
+    $main::SIG{__DIE__} = \&CGI::Cache::CGI_Cache_die;
   }
 
   return 1;
@@ -178,7 +178,7 @@ sub _set_defaults
   unless (defined $options->{cache_key})
   {
     my $tmpdir = tmpdir() or
-      die("No tmpdir on this system.  Bugs to the authors of File::Spec");
+      CORE::die("No tmpdir on this system.  Bugs to the authors of File::Spec");
 
     $CACHE_PATH = File::Spec->catfile($tmpdir, $DEFAULT_CACHE_KEY);
 
