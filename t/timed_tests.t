@@ -8,7 +8,7 @@ use CGI::Cache;
 
 use vars qw( $VERSION );
 
-$VERSION = '0.10.0';
+$VERSION = sprintf "%d.%02d%02d", q/0.10.0/ =~ /(\d+)/g;
 
 # ----------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ sub Time_Script
   SKIP: {
     skip "Both runs were too fast to compare", 1 if $t2 == 0 && $t1 == 0;
 
-    ok($2 == 0 || $t1/$t2 < 1.5, "$message: Caching run was faster");
+    ok($t2 == 0 || $t1/$t2 < 1.5, "$message: Caching run was faster");
   }
 }
 

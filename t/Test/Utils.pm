@@ -7,7 +7,7 @@ use FileHandle;
 
 use vars qw( @EXPORT @ISA $VERSION );
 
-$VERSION = '0.10.0';
+$VERSION = sprintf "%d.%02d%02d", q/0.10.0/ =~ /(\d+)/g;
 
 @ISA = qw( Exporter );
 @EXPORT = qw( Run_Script Write_Script Setup_Cache );
@@ -26,6 +26,8 @@ sub Run_Script
   my $expected_stderr = shift;
   my $expected_cached = shift;
   my $message = shift;
+
+  local $Test::Builder::Level = 2;
 
   Write_Script($test_script_name,$script);
   Setup_Cache($test_script_name,$script);

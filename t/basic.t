@@ -14,7 +14,7 @@ use strict;
 use File::Path;
 use vars qw( $VERSION );
 
-$VERSION = '0.10.0';
+$VERSION = sprintf "%d.%02d%02d", q/0.10.0/ =~ /(\d+)/g;
 
 # ----------------------------------------------------------------------------
 
@@ -29,64 +29,72 @@ rmtree 't/CGI_Cache_tempdir';
 # ----------------------------------------------------------------------------
 
 # Tests 2,3: that we can initialize the cache with the default values
-my $x;
-$@ = '';
+{
+  my $x;
+  $@ = '';
 
-eval {
-  $x = CGI::Cache::setup();
-};
+  eval {
+    $x = CGI::Cache::setup();
+  };
 
-is($@,'','No errors initializing with default values');
-ok($x,'Return value after initializing with default values');
+  is($@,'','No errors initializing with default values');
+  ok($x,'Return value after initializing with default values');
 
-Cache::SizeAwareFileCache::Clear($CGI::Cache::CACHE_PATH);
+  Cache::SizeAwareFileCache::Clear($CGI::Cache::CACHE_PATH);
+}
 
 # ----------------------------------------------------------------------------
 
 # Tests 4,5: that we can initialize the cache with the non-default values
-my $x;
-$@ = '';
+{
+  my $x;
+  $@ = '';
 
-eval {
-  $x = CGI::Cache::setup( { cache_options =>
-                            { cache_root => 't/CGI_Cache_tempdir',
-                              namespace => $0,
-                              username => '',
-                              filemode => 0666,
-                              max_size => 20 * 1024 * 1024,
-                              expires_in => 6 * 60 * 60,
-                            }
-                          } );
-};
+  eval {
+    $x = CGI::Cache::setup( { cache_options =>
+                              { cache_root => 't/CGI_Cache_tempdir',
+                                namespace => $0,
+                                username => '',
+                                filemode => 0666,
+                                max_size => 20 * 1024 * 1024,
+                                expires_in => 6 * 60 * 60,
+                              }
+                            } );
+  };
 
-is($@,'','No errors initializing with non-default values');
-ok($x,'Return value after initializing with non-default values');
+  is($@,'','No errors initializing with non-default values');
+  ok($x,'Return value after initializing with non-default values');
+}
 
 # ----------------------------------------------------------------------------
 
 # Tests 6,7: that we can set a simple key
-my $x;
-$@ = '';
+{
+  my $x;
+  $@ = '';
 
-eval {
-  $x = CGI::Cache::set_key( 'test1' );
-};
+  eval {
+    $x = CGI::Cache::set_key( 'test1' );
+  };
 
-is($@,'','No errors setting a simple key');
-ok($x,'Return value after setting a simple key');
+  is($@,'','No errors setting a simple key');
+  ok($x,'Return value after setting a simple key');
+}
 
 # ----------------------------------------------------------------------------
 
 # Tests 8,9: that we can set a complex key
-my $x;
-$@ = '';
+{
+  my $x;
+  $@ = '';
 
-eval {
-  $x = CGI::Cache::set_key( { 'a' => [0,1,2], 'b' => 'test2'} );
-};
+  eval {
+    $x = CGI::Cache::set_key( { 'a' => [0,1,2], 'b' => 'test2'} );
+  };
 
-is($@,'','No errors setting a complex key');
-ok($x,'Return value after setting a complex key');
+  is($@,'','No errors setting a complex key');
+  ok($x,'Return value after setting a complex key');
+}
 
 # ----------------------------------------------------------------------------
 

@@ -3,10 +3,6 @@
 use strict;
 use inc::Module::Install;
 
-Check_Custom_Installation();
-
-print "\n", '-'x78, "\n\n";
-
 name              ('CGI-Cache');
 author            ('David Coppit <david@coppit.org>');
 abstract_from     ('lib/CGI/Cache.pm');
@@ -18,6 +14,7 @@ build_requires    (
                     'File::Path' => 0,
                   );
 requires          (
+                    'perl' => 5.004,
                     'File::Path' => 0,
                     'Tie::Restore' => 0,
                     'File::Spec' => 0,
