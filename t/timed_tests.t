@@ -1,7 +1,7 @@
 use Test::More tests => 9;
 
 use strict;
-use lib 'lib';
+use lib 't';
 use Test::Utils;
 use File::Path;
 use CGI::Cache;
@@ -55,7 +55,7 @@ sub Time_Script
 
 # Test 1-4: caching with default attributes
 Time_Script(<<EOF,"Test output 1\n","Default attributes");
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup({ cache_options => { cache_root => 't/CGI_Cache_tempdir' } });
@@ -75,7 +75,7 @@ rmtree 't/CGI_Cache_tempdir';
 # Test 5-8: caching with some custom attributes, and with a complex data
 # structure
 Time_Script(<<EOF,"Test output 2\n","Custom attributes");
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup( { cache_options => { 
@@ -98,7 +98,7 @@ rmtree 't/CGI_Cache_tempdir';
 
 # Test 9-12: caching with default attributes. (set handles)
 Time_Script(<<EOF,"Test output 1\n","Set handles");
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup( { cache_options => { cache_root => 't/CGI_Cache_tempdir' },

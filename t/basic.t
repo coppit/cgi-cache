@@ -37,7 +37,7 @@ eval {
 };
 
 is($@,'','No errors initializing with default values');
-is($x,1,'Return value after initializing with default values');
+ok($x,'Return value after initializing with default values');
 
 Cache::SizeAwareFileCache::Clear($CGI::Cache::CACHE_PATH);
 
@@ -60,7 +60,7 @@ eval {
 };
 
 is($@,'','No errors initializing with non-default values');
-is($x,1,'Return value after initializing with non-default values');
+ok($x,'Return value after initializing with non-default values');
 
 # ----------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ eval {
 };
 
 is($@,'','No errors setting a simple key');
-is($x,1,'Return value after setting a simple key');
+ok($x,'Return value after setting a simple key');
 
 # ----------------------------------------------------------------------------
 
@@ -86,12 +86,12 @@ eval {
 };
 
 is($@,'','No errors setting a complex key');
-is($x,1,'Return value after setting a complex key');
+ok($x,'Return value after setting a complex key');
 
 # ----------------------------------------------------------------------------
 
 # Test 10: There should be no cache directory until we actually cache something
-isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
+ok(!-e 't/CGI_Cache_tempdir', 'No cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ print "Cached output\n";
 CGI::Cache::stop();
 
 # Test 11: There should be a cache directory after we actually cache something
-is(-d 't/CGI_Cache_tempdir', 1, 'Cache directory after something cached');
+ok(-d 't/CGI_Cache_tempdir', 'Cache directory after something cached');
 
 # ----------------------------------------------------------------------------
 

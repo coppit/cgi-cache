@@ -25,6 +25,8 @@ requires          (
                     'Storable' => 0,
                   );
 
+clean_files       ('t/CGI_Cache_tempdir','t/*.cgi');
+
 include           ('ExtUtils/AutoInstall.pm');
 
 auto_include_deps ( );

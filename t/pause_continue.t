@@ -1,7 +1,7 @@
 use Test::More tests => 6;
 
 use strict;
-use lib 'lib';
+use lib 't';
 use File::Path;
 use Test::Utils;
 use CGI::Cache;
@@ -26,7 +26,7 @@ my $script_number = 1;
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup({ cache_options => { cache_root => 't/CGI_Cache_tempdir' } });
@@ -60,7 +60,7 @@ rmtree 't/CGI_Cache_tempdir';
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup( { cache_options => { cache_root => 't/CGI_Cache_tempdir' },

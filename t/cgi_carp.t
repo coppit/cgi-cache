@@ -1,7 +1,7 @@
 use Test::More;
 
 use strict;
-use lib 'lib';
+use lib 't';
 use Test::Utils;
 use File::Path;
 use CGI::Cache;
@@ -36,7 +36,7 @@ my $script_number = 1;
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 use CGI::Carp qw(fatalsToBrowser set_message);
 
@@ -63,7 +63,7 @@ $script_number++;
 # ----------------------------------------------------------------------------
 
 # Test 4: There should be no cache directory until we actually cache something
-isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
+ok(!-e 't/CGI_Cache_tempdir', 'No cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -72,7 +72,7 @@ isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 use CGI::Carp qw(fatalsToBrowser set_message);
 

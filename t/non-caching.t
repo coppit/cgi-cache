@@ -1,7 +1,7 @@
 use Test::More tests => 16;
 
 use strict;
-use lib 'lib';
+use lib 't';
 use File::Path;
 use Test::Utils;
 use CGI::Cache;
@@ -26,7 +26,7 @@ my $script_number = 1;
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup({ cache_options => { cache_root => 't/CGI_Cache_tempdir' } });
@@ -54,7 +54,7 @@ rmtree 't/CGI_Cache_tempdir';
 # ----------------------------------------------------------------------------
 
 # Test 4: There should be no cache directory until we actually cache something
-isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
+ok(!-e 't/CGI_Cache_tempdir', 'No cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup( { cache_options => { cache_root => 't/CGI_Cache_tempdir' } } );
@@ -91,7 +91,7 @@ rmtree 't/CGI_Cache_tempdir';
 # ----------------------------------------------------------------------------
 
 # Test 8: There should be no cache directory until we actually cache something
-isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
+ok(!-e 't/CGI_Cache_tempdir', 'No cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 $SIG{__DIE__} = sub { print STDOUT @_;exit 1 };
@@ -130,7 +130,7 @@ rmtree 't/CGI_Cache_tempdir';
 # ----------------------------------------------------------------------------
 
 # Test 12: There should be no cache directory until we actually cache something
-isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
+ok(!-e 't/CGI_Cache_tempdir', 'No cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -139,7 +139,7 @@ isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
 my $test_script_name = "t/cgi_test_$script_number.cgi";
 
 my $script = <<'EOF';
-use lib './blib/lib';
+use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup( { cache_options => { cache_root => 't/CGI_Cache_tempdir' },
@@ -171,6 +171,6 @@ rmtree 't/CGI_Cache_tempdir';
 # ----------------------------------------------------------------------------
 
 # Test 16: There should be no cache directory until we actually cache something
-isnt(-e 't/CGI_Cache_tempdir', 0, 'No cache directory until something cached');
+ok(!-e 't/CGI_Cache_tempdir', 'No cache directory until something cached');
 
 # ----------------------------------------------------------------------------
