@@ -8,8 +8,7 @@ $ cvs -z3 -d:ext:coppit@cvs.sourceforge.net:/cvsroot/cgicache co devel
 Checklist for a release:
 - Be sure to add new test cases for new features
 - Make sure version number increases.
-- Datestamp the changelog
-- Add version changes to README and CHANGES, anonymizing the notes in README.
+- Add version changes to README and CHANGES, anonymizing the notes in the README.
 - Add new module dependencies to Makefile.PL, and update README
 - Update MANIFEST and MANIFEST.SKIP if necessary.
   $ make distcheck
@@ -50,11 +49,8 @@ Checklist for a release:
 - Announce it to cgicache-announce@sourceforge.net and to
   comp.lang.perl.announce.
 - Copy current code to old in devel
-  $ cd devel
-  $ rm -rf old
-  $ cp -r lib old
-  $ rm -rf `find old -name CVS`
+  $ rm -rf old; rsync -r --cvs-exclude lib/* old
 - Check in code:
   $ cvs ci
 - Tag the release for easy retrieval later
-  $ cvs tag "v1_11"
+  $ cvs tag "v1_41_2"
