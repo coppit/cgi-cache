@@ -19,7 +19,7 @@ use File::Path;
 use strict;
 use vars qw( %TEST_SCRIPTS $VERSION );
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 # ----------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ print "1..$total\n";
 my $test_number = 1;
 
 foreach my $test (@$tests) {
-$test_number++ and next unless $test_number =~ /^(1|2|11)$/;
+#$test_number++ and next unless $test_number =~ /^(1|2|11)$/;
 	if (&$test) {
 		print "ok $test_number\n";
 	} else {
