@@ -1,9 +1,8 @@
 This file is not distributed with the module. It outlines some notes for
 developers readying a set of files for distribution.
 
-CVS CHECKOUT:
-$ export CVS_RSH=ssh
-$ cvs -z3 -d:ext:coppit@cvs.sourceforge.net:/cvsroot/cgicache co devel
+Subversion CHECKOUT:
+$ svn co https://coppit@svn.sourceforge.net/svnroot/cgicache/trunk CGI-Cache
 
 Checklist for a release:
 - Be sure to add new test cases for new features
@@ -49,8 +48,8 @@ Checklist for a release:
 - Announce it to cgicache-announce@sourceforge.net and to
   comp.lang.perl.announce.
 - Copy current code to old in devel
-  $ rm -rf old; rsync -r --cvs-exclude lib/* old
+  $ rm -rf old; rsync -r --cvs-exclude --exclude=.svn lib/* old
 - Check in code:
-  $ cvs ci
+  $ svn commit
 - Tag the release for easy retrieval later
-  $ cvs tag "v1_41_2"
+  $ svn cp https://coppit@svn.sourceforge.net/svnroot/cgicache/trunk https://coppit@svn.sourceforge.net/svnroot/cgicache/tags/v1.41.2" 
