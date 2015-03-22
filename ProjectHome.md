@@ -1,0 +1,1 @@
+CGI::Cache is an easy-to-use module for automatically caching CGI output so that subsequent visits to such scripts will not take as much time.
