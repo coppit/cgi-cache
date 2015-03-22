@@ -3,7 +3,7 @@ package CGI::Cache;
 use strict;
 use vars qw( $VERSION );
 
-use 5.004;
+use 5.005;
 use File::Path;
 use File::Spec;
 use File::Spec::Functions qw( tmpdir );
@@ -11,7 +11,7 @@ use Cache::SizeAwareFileCache;
 use Tie::Restore;
 use Storable qw( freeze );
 
-$VERSION = sprintf "%d.%02d%02d", q/1.42.1/ =~ /(\d+)/g;
+$VERSION = sprintf "%d.%02d%02d", q/1.42.2/ =~ /(\d+)/g;
 
 # --------------------------------------------------------------------------
 
@@ -855,6 +855,8 @@ CGI::Cache will have already determined that the cache entry is invalid.
 =item $status = clear_cache();
 
 Deletes the cache. It is always successful, and always returns 1.
+
+=back
 
 
 =head1 CGI::Cache and Persistent Environments

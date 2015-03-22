@@ -52,8 +52,8 @@ sub Run_Script
   # Save STDERR and redirect temporarily to nothing. This will prevent the
   # test script from emitting output to STDERR
   {
-    use vars qw(*OLDSTDERR);
-    open OLDSTDERR,">&STDERR" or die "Can't save STDERR: $!\n";
+    my $oldstderr;
+    open $oldstderr,">&STDERR" or die "Can't save STDERR: $!\n";
     open STDERR,">STDERR-redirected"
       or die "Can't redirect STDERR to STDERR-redirected: $!\n";
 
@@ -81,7 +81,7 @@ sub Run_Script
     
     unlink $test_script_name;
 
-    open STDERR,">&OLDSTDERR" or die "Can't restore STDERR: $!\n";
+    open STDERR, '>&', $oldstderr or die "Can't restore STDERR: $!\n";
 
     # Check the answer that the test generated
     if (defined $expected_stdout)

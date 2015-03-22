@@ -15,6 +15,7 @@ t/disabled_ouput.t
 t/invalidate_cache_entry.t
 t/non-caching.t
 t/pause_continue.t
+t/pod.t
 t/stop.t
 t/Test/Utils.pm
 t/timed_tests.t

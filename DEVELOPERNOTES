@@ -1,13 +1,13 @@
 This file is not distributed with the module. It outlines some notes for
 developers readying a set of files for distribution.
 
-Subversion CHECKOUT:
-$ svn co https://cgi-cache.googlecode.com/svn/trunk CGI-Cache
+git checkout:
+$ git clone https://github.com/coppit/cgi-cache.git
 
 Checklist for a release:
 - Be sure to add new test cases for new features
 - Make sure version number increases.
-- Add version changes to README and CHANGES, anonymizing the notes in the README.
+- Add version changes to CHANGES
 - Add new module dependencies to Makefile.PL, and update README
 - Update MANIFEST and MANIFEST.SKIP if necessary.
   $ make distcheck
@@ -23,10 +23,7 @@ Checklist for a release:
     http://pause.perl.org/pause/authenquery
   or
     cpan-upload CGI-Cache-X.XX.tar.gz
-- Announce it to comp.lang.perl.announce.
-- Copy current code to old in devel
-  $ rm -rf old; rsync -r --cvs-exclude --exclude=.svn * old
-- Check in code:
-  $ svn commit
 - Tag the release for easy retrieval later
-  $ svn cp https://cgi-cache.googlecode.com/svn/trunk https://cgi-cache.googlecode.com/svn/tags/1.4201
+  $ git tag -a v1.4201 -m 'Version 1.4201'
+- Push changes to github:
+  $ git push

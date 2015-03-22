@@ -1,0 +1,9 @@
+/blib/
+inc/
+/Makefile
+/META.yml
+/MYMETA.*
+/pm_to_blib
+/CGI-Cache-*.tar.gz
+/t/temp/
+**/*.swp
