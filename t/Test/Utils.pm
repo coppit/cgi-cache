@@ -4,6 +4,7 @@ use strict;
 use Exporter;
 use Test::More;
 use FileHandle;
+use Config;
 
 use vars qw( @EXPORT @ISA $VERSION );
 
@@ -14,6 +15,8 @@ $VERSION = sprintf "%d.%02d%02d", q/0.10.1/ =~ /(\d+)/g;
               $command_separator );
 
 use vars qw( $single_quote $command_separator $set_env );
+
+my $path_to_perl = $Config{perlpath};
 
 if ($^O eq 'MSWin32')
 {
@@ -60,7 +63,7 @@ sub Run_Script
     my $script_results;
     
     {
-      my @standard_inc = split /###/, `$^X -e '\$" = "###";print "\@INC"'`;
+      my @standard_inc = split /###/, `$path_to_perl -e '\$" = "###";print "\@INC"'`;
       my @extra_inc;
       foreach my $inc (@INC)
       {
@@ -71,11 +74,11 @@ sub Run_Script
       if (@extra_inc)
       {
         local $" = ' -I';
-        $script_results = `$^X -I@extra_inc $test_script_name`;
+        $script_results = `$path_to_perl -I@extra_inc $test_script_name`;
       }
       else
       {
-        $script_results = `$^X $test_script_name`;
+        $script_results = `$path_to_perl $test_script_name`;
       }
     }
     
