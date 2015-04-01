@@ -54,8 +54,8 @@ my $expected_stderr = qr/\[[^\]]+:[^\]]+\] $short_script_name: Good day to die/s
 my $expected_cached = undef;
 my $message = "CGI::Carp not caching with default attributes";
 
-Run_Script($test_script_name, $script, $expected_stdout, $expected_stderr,
-$expected_cached, $message, 1);
+Init_For_Run($test_script_name, $script, 1);
+Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
 
 $script_number++;
 }
@@ -88,8 +88,8 @@ my $expected_stderr = '';
 my $expected_cached = "Good day to live\n";
 my $message = "CGI::Carp caching with default attributes";
 
-Run_Script($test_script_name, $script, $expected_stdout, $expected_stderr,
-$expected_cached, $message, 1);
+Init_For_Run($test_script_name, $script, 1);
+Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
 
 $script_number++;
 }

@@ -11,7 +11,7 @@ use vars qw( @EXPORT @ISA $VERSION );
 $VERSION = sprintf "%d.%02d%02d", q/0.10.1/ =~ /(\d+)/g;
 
 @ISA = qw( Exporter );
-@EXPORT = qw( Run_Script Write_Script Setup_Cache $set_env $single_quote
+@EXPORT = qw( Init_For_Run Run_Script Write_Script Setup_Cache $set_env $single_quote
               $command_separator );
 
 use vars qw( $single_quote $command_separator $set_env );
@@ -33,6 +33,18 @@ else
 
 # ---------------------------------------------------------------------------
 
+sub Init_For_Run
+{
+  my $test_script_name = shift;
+  my $script = shift;
+  my $clear_cache = shift;
+
+  Write_Script($test_script_name,$script);
+  Setup_Cache($test_script_name,$script,$clear_cache);
+}
+
+# ---------------------------------------------------------------------------
+
 # This function executes three tests, one for each of the expected_ variables.
 # If any of the expected_ variables are the string "<SKIP>", any value will be
 # accepted.
@@ -40,17 +52,12 @@ else
 sub Run_Script
 {
   my $test_script_name = shift;
-  my $script = shift;
   my $expected_stdout = shift;
   my $expected_stderr = shift;
   my $expected_cached = shift;
   my $message = shift;
-  my $clear_cache = shift;
 
   local $Test::Builder::Level = 2;
-
-  Write_Script($test_script_name,$script);
-  Setup_Cache($test_script_name,$script,$clear_cache);
 
   # Save STDERR and redirect temporarily to nothing. This will prevent the
   # test script from emitting output to STDERR

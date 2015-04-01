@@ -1,5 +1,8 @@
 Version 1.4203: Sat Mar 28 2015
 - Make test script more compatible with automated testing
+- Improve the speed test and make it separate from the normal functional
+  tests. Thanks to Gregor Hermann <gregoa@cpan.org> for observing that the
+  speed test was flaky.
 
 Version 1.4202: Sun Mar 22 2015
 - Moved code to github
