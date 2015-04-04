@@ -20,7 +20,7 @@ test_requires(
   'Error' => 0,
 );
 
-check_optional( 'Benchmark::Timer' => '0.7100',
+check_optional('Benchmark::Timer' => '0.7100',
   "Install Benchmark::Timer if you want to run \"make testspeed\"\n");
 
 sub MY::postamble {
