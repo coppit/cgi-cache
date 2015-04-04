@@ -3,6 +3,7 @@ LICENSE
 MANIFEST
 Makefile.PL
 README
+TODO
 
 # The module files
 lib/CGI/Cache.pm
@@ -18,13 +19,14 @@ t/pause_continue.t
 t/pod.t
 t/stop.t
 t/Test/Utils.pm
-t/timed_tests.t
+t/speed.pl
 t/user_specified_filehandle.t
 
 # Module::Install extensions
 inc/Module/Install.pm
 inc/Module/Install/Base.pm
 inc/Module/Install/Can.pm
+inc/Module/Install/CheckOptional.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
