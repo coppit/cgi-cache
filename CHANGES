@@ -1,4 +1,4 @@
-Version 1.4203: Sat Mar 28 2015
+Version 1.4203: Sat Apr 4 2015
 - Make test script more compatible with automated testing
 - Improve the speed test and make it separate from the normal functional
   tests. Thanks to Gregor Hermann <gregoa@cpan.org> for observing that the
