@@ -2,8 +2,7 @@ This file is not distributed with the module. It outlines some notes for
 developers readying a set of files for distribution.
 
 Check for any open issues:
-- https://rt.cpan.org/Dist/Display.html?Queue=CGI-Cache
-- https://code.google.com/p/cgi-cache/issues/list
+- https://rt.cpan.org/Public/Dist/Display.html?Name=CGI-Cache
 
 git checkout:
 $ git clone https://github.com/coppit/cgi-cache.git

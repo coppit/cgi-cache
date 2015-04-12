@@ -6,6 +6,7 @@ use File::Slurp;
 
 all_from('lib/CGI/Cache.pm');
 
+auto_set_bugtracker;
 githubmeta;
 
 include(
