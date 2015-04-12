@@ -7,6 +7,7 @@ TODO
 
 # The module files
 lib/CGI/Cache.pm
+lib/Module/Install/PRIVATE/Add_Test_Target.pm
 
 # Tests
 t/basic.t
@@ -23,6 +24,7 @@ t/speed.pl
 t/user_specified_filehandle.t
 
 # Module::Install extensions
+inc/File/Slurp.pm
 inc/Module/Install.pm
 inc/Module/Install/AutoLicense.pm
 inc/Module/Install/AutomatedTester.pm
@@ -32,8 +34,10 @@ inc/Module/Install/Can.pm
 inc/Module/Install/CheckOptional.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/GithubMeta.pm
+inc/Module/Install/Include.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
+inc/Module/Install/PRIVATE/Add_Test_Target.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 
