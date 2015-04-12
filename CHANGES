@@ -1,6 +1,8 @@
 Version 1.4204:
 - Enable verbose testing for CPAN-testers
 - Consolidate issue tracking at rt.cpan.org
+- Fix excessive warnings about signal handlers. Thanks to "festinare" for the
+  patch. https://code.google.com/p/cgi-cache/issues/detail?id=1
 
 Version 1.4203: Sat Apr 4 2015
 - Make test script more compatible with automated testing

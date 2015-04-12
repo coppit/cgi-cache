@@ -356,13 +356,13 @@ sub _bind
 
     # Store the previous warn() and die() handlers, unless they are ours. (We
     # don't want to call ourselves if the user calls setup twice!)
-    if ( $main::SIG{__WARN__} ne \&warn )
+    if ( exists $main::SIG{__WARN__} && defined $main::SIG{__WARN__} && $main::SIG{__WARN__} ne \&warn )
     {
       $OLD_WARN_SIG = $main::SIG{__WARN__} if $main::SIG{__WARN__} ne '';
       $main::SIG{__WARN__} = \&warn;
     }
 
-    if ( $main::SIG{__DIE__} ne \&die )
+    if ( exists $main::SIG{__DIE__} && defined $main::SIG{__DIE__} && $main::SIG{__DIE__} ne \&die )
     {
       $OLD_DIE_SIG = $main::SIG{__DIE__} if $main::SIG{__DIE__} ne '';
       $main::SIG{__DIE__} = \&die;
