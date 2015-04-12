@@ -5,13 +5,14 @@ use Exporter;
 use Test::More;
 use FileHandle;
 use Config;
+use File::Slurp;
 
 use vars qw( @EXPORT @ISA $VERSION );
 
 $VERSION = sprintf "%d.%02d%02d", q/0.10.1/ =~ /(\d+)/g;
 
 @ISA = qw( Exporter );
-@EXPORT = qw( Init_For_Run Run_Script Write_Script Setup_Cache $set_env $single_quote
+@EXPORT = qw( Init_For_Run Run_Script Setup_Cache $set_env $single_quote
               $command_separator );
 
 use vars qw( $single_quote $command_separator $set_env );
@@ -39,7 +40,7 @@ sub Init_For_Run
   my $script = shift;
   my $clear_cache = shift;
 
-  Write_Script($test_script_name,$script);
+  write_file($test_script_name, $script);
   Setup_Cache($test_script_name,$script,$clear_cache);
 }
 
@@ -117,10 +118,7 @@ sub Run_Script
   }
 
   {
-    open ERROR, "STDERR-redirected";
-    local $/ = undef;
-    my $script_errors = <ERROR>;
-    close ERROR;
+    my $script_errors = read_file('STDERR-redirected');
     unlink "STDERR-redirected";
 
     if (defined $expected_stderr)
@@ -171,18 +169,6 @@ sub Run_Script
   }
 
   unlink $test_script_name;
-}
-
-# ----------------------------------------------------------------------------
-
-sub Write_Script
-{
-  my $test_script_name = shift;
-  my $script = shift;
-
-  open(FH,">$test_script_name") || die "Can't open file \"$test_script_name\". $!\n";
-  print FH $script;
-  close FH;
 }
 
 # ----------------------------------------------------------------------------

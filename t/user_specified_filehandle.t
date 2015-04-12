@@ -5,6 +5,7 @@ use lib 't';
 use File::Path;
 use Test::Utils;
 use CGI::Cache;
+use File::Slurp;
 
 use vars qw( $VERSION );
 
@@ -28,6 +29,7 @@ my $test_script_name = "t/cgi_test_$script_number.cgi";
 my $script = <<'EOF';
 use lib '../blib/lib';
 use CGI::Cache;
+use File::Slurp;
 
 open FH, ">TEST.OUT";
 
@@ -42,17 +44,14 @@ CGI::Cache::stop();
 
 close FH;
 
-open FH, "TEST.OUT";
-local $/ = undef;
-$results = <FH>;
-close FH;
+my $results = read_file('TEST.OUT');
 
 unlink "TEST.OUT";
 
 print "RESULTS: $results";
 EOF
 
-Write_Script($test_script_name,$script);
+write_file($test_script_name, $script);
 Setup_Cache($test_script_name,$script,1);
 
 my $expected_stdout = "RESULTS: Test output 1\n";
@@ -77,6 +76,7 @@ my $test_script_name = "t/cgi_test_$script_number.cgi";
 my $script = <<'EOF';
 use lib '../blib/lib';
 use CGI::Cache;
+use File::Slurp;
 
 open FH, ">TEST.OUT";
 
@@ -91,10 +91,7 @@ CGI::Cache::stop();
 
 close FH;
 
-open FH, "TEST.OUT";
-local $/ = undef;
-$results = <FH>;
-close FH;
+my $results = read_file('TEST.OUT');
 
 unlink "TEST.OUT";
 
