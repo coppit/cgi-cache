@@ -56,7 +56,7 @@ Just "perldoc CGI::Cache". After installation on Unix systems,
 you can also do "man CGI::Cache".
 
 
-HOMEPAGE
+RESOURCES
 
 The CPAN Page:
 http://search.cpan.org/dist/CGI-Cache/
@@ -64,10 +64,8 @@ http://search.cpan.org/dist/CGI-Cache/
 The GitHub page:
 https://github.com/coppit/cgi-cache/
 
-
-REPORTING BUGS
-
-https://github.com/coppit/cgi-cache/issues
+Bug and feature tracking:
+http://rt.cpan.org/Public/Dist/Display.html?Name=CGI-Cache
 
 
 COPYRIGHT
