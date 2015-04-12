@@ -5,6 +5,8 @@ use inc::Module::Install;
 
 all_from('lib/CGI/Cache.pm');
 
+githubmeta;
+
 license('gpl');
 
 requires(
