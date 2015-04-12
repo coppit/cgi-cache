@@ -37,8 +37,6 @@ check_optional('Benchmark::Timer' => '0.7100',
 
 Add_Test_Target('testspeed', 't/speed.pl');
 
-clean_files('t/CGI_Cache_tempdir','t/*.cgi');
-
 license 'gpl2';
 auto_license(holder => 'David Coppit');
 
