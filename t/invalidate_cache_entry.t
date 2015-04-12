@@ -1,3 +1,4 @@
+use File::Temp;
 use Test::More tests => 6;
 
 use strict;
@@ -10,10 +11,7 @@ use vars qw( $VERSION );
 
 $VERSION = sprintf "%d.%02d%02d", q/0.10.0/ =~ /(\d+)/g;
 
-# ----------------------------------------------------------------------------
-
-# Make sure the cache directory isn't there
-rmtree 't/CGI_Cache_tempdir';
+my $TEMPDIR = File::Temp::tempdir();
 
 # ----------------------------------------------------------------------------
 
@@ -26,13 +24,11 @@ my $script_number = 1;
 
 # Do the first run to set up the cached data
 {
-  my $test_script_name = "t/cgi_test_$script_number.cgi";
-
-  my $script = <<'EOF';
+  my $script = <<EOF;
 use lib '../blib/lib';
 use CGI::Cache;
 
-CGI::Cache::setup({ cache_options => { cache_root => 't/CGI_Cache_tempdir' } });
+CGI::Cache::setup({ cache_options => { cache_root => '$TEMPDIR' } });
 CGI::Cache::set_key('test key');
 CGI::Cache::start() or exit;
 
@@ -46,6 +42,8 @@ EOF
   my $expected_cached = "Test output 1\n";
   my $message = 'invalidate_cache_entry() setup';
 
+  my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+
   Init_For_Run($test_script_name, $script, 1);
   Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
 }
@@ -53,14 +51,12 @@ EOF
 # Now run a script that invalidates the previous cached content before
 # printing new cached content
 {
-  my $test_script_name = "t/cgi_test_$script_number.cgi";
-
-  my $script = <<'EOF';
+  my $script = <<EOF;
 use lib '../blib/lib';
 use CGI::Cache;
 
 CGI::Cache::setup( { cache_options => {
-                     cache_root => 't/CGI_Cache_tempdir',
+                     cache_root => '$TEMPDIR',
                      filemode => 0666,
                      max_size => 20 * 1024 * 1024,
                      default_expires_in => 6 * 60 * 60,
@@ -77,12 +73,14 @@ EOF
   my $expected_cached = "Test output 2\n";
   my $message = 'invalidate_cache_entry() operation';
 
+  my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+
   Init_For_Run($test_script_name, $script, 1);
   Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
 }
 
 $script_number++;
 
-rmtree 't/CGI_Cache_tempdir';
+rmtree $TEMPDIR;
 }
 

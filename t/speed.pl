@@ -1,3 +1,4 @@
+use File::Temp;
 use Test::More;
 
 use strict;
@@ -11,15 +12,12 @@ use vars qw( $VERSION );
 
 $VERSION = sprintf "%d.%02d%02d", q/0.10.2/ =~ /(\d+)/g;
 
+my $TEMPDIR = File::Temp::tempdir();
+
 BEGIN
 {
   die "Need Benchmark::Timer 0.6 or higher" unless $Benchmark::Timer::VERSION >= 0.6;
 }
-
-# ----------------------------------------------------------------------------
-
-# Make sure the cache directory isn't there
-rmtree 't/CGI_Cache_tempdir';
 
 # ----------------------------------------------------------------------------
 
@@ -29,8 +27,8 @@ sub Time_Script
   my $expected_stdout = shift;
   my $message = shift; 
   
-  my $test_script_name = "t/cgi_test.cgi";
-  
+  my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+
   my $t = Benchmark::Timer->new(skip => 1, confidence => 95, error => 5, minimum => 3);
   my $total_tests = 0;
 
@@ -80,10 +78,10 @@ sub Time_Script
 my $total_tests = 0;
 
 # Test 1-7: caching with default attributes
-$total_tests += Time_Script(<<'EOF',"Test output 1\n","Default attributes");
+$total_tests += Time_Script(<<EOF,"Test output 1\n","Default attributes");
 use CGI::Cache;
 
-CGI::Cache::setup({ cache_options => { cache_root => 't/CGI_Cache_tempdir' } });
+CGI::Cache::setup({ cache_options => { cache_root => '$TEMPDIR' } });
 CGI::Cache::set_key('test key');
 CGI::Cache::start() or exit;
 
@@ -93,17 +91,17 @@ sleep 3;
 EOF
 
 # Clean up
-rmtree 't/CGI_Cache_tempdir';
+rmtree $TEMPDIR;
 
 # ----------------------------------------------------------------------------
 
 # Test 8-14: caching with some custom attributes, and with a complex data
 # structure
-$total_tests += Time_Script(<<'EOF',"Test output 2\n","Custom attributes");
+$total_tests += Time_Script(<<EOF,"Test output 2\n","Custom attributes");
 use CGI::Cache;
 
 CGI::Cache::setup( { cache_options => { 
-                     cache_root => 't/CGI_Cache_tempdir',
+                     cache_root => '$TEMPDIR',
                      filemode => 0666,
                      max_size => 20 * 1024 * 1024,
                      default_expires_in => 6 * 60 * 60,
@@ -117,19 +115,19 @@ sleep 3;
 EOF
 
 # Clean up
-rmtree 't/CGI_Cache_tempdir';
+rmtree $TEMPDIR;
 
 # ----------------------------------------------------------------------------
 
 # Test 15-21 caching with default attributes. (set handles)
-$total_tests += Time_Script(<<'EOF',"Test output 1\n","Set handles");
+$total_tests += Time_Script(<<EOF,"Test output 1\n","Set handles");
 use CGI::Cache;
 
-CGI::Cache::setup( { cache_options => { cache_root => 't/CGI_Cache_tempdir' },
-                     watched_output_handle => \*STDOUT,
-                     watched_error_handle => \*STDERR,
-                     output_handle => \*STDOUT,
-                     error_handle => \*STDERR } );
+CGI::Cache::setup( { cache_options => { cache_root => '$TEMPDIR' },
+                     watched_output_handle => \\*STDOUT,
+                     watched_error_handle => \\*STDERR,
+                     output_handle => \\*STDOUT,
+                     error_handle => \\*STDERR } );
 CGI::Cache::set_key('test key');
 CGI::Cache::start() or exit;
 
@@ -139,6 +137,6 @@ sleep 3;
 EOF
 
 # Clean up
-rmtree 't/CGI_Cache_tempdir';
+rmtree $TEMPDIR;
 
 done_testing($total_tests);

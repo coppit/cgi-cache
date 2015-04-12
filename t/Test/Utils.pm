@@ -144,7 +144,9 @@ sub Run_Script
   }
 
   {
-    my $cached_results = $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY);
+    my $cached_results;
+    $cached_results = $CGI::Cache::THE_CACHE->get($CGI::Cache::THE_CACHE_KEY)
+      if defined $CGI::Cache::THE_CACHE;
 
     if (defined $expected_cached)
     {
@@ -190,7 +192,7 @@ sub Setup_Cache
   eval "CGI::Cache::set_key($cache_key)";
 
   # Clear the cache to start the test
-  $CGI::Cache::THE_CACHE->clear() if $clear_cache;
+  $CGI::Cache::THE_CACHE->clear() if defined($CGI::Cache::THE_CACHE) && $clear_cache;
 }
 
 # ----------------------------------------------------------------------------

@@ -1,3 +1,4 @@
+use File::Temp;
 use Test::More tests => 11;
 
 # Set up an end block to clear the cache when we exit.
@@ -16,15 +17,12 @@ use vars qw( $VERSION );
 
 $VERSION = sprintf "%d.%02d%02d", q/0.10.0/ =~ /(\d+)/g;
 
+my $TEMPDIR = File::Temp::tempdir();
+
 # ----------------------------------------------------------------------------
 
 # Test 1: that the module can be loaded without errors
 BEGIN{ use_ok 'CGI::Cache' }
-
-# ----------------------------------------------------------------------------
-
-# Make sure the cache directory isn't there
-rmtree 't/CGI_Cache_tempdir';
 
 # ----------------------------------------------------------------------------
 
@@ -52,7 +50,7 @@ rmtree 't/CGI_Cache_tempdir';
 
   eval {
     $x = CGI::Cache::setup( { cache_options =>
-                              { cache_root => 't/CGI_Cache_tempdir',
+                              { cache_root => $TEMPDIR,
                                 namespace => $0,
                                 username => '',
                                 filemode => 0666,
@@ -98,8 +96,8 @@ rmtree 't/CGI_Cache_tempdir';
 
 # ----------------------------------------------------------------------------
 
-# Test 10: There should be no cache directory until we actually cache something
-ok(!-e 't/CGI_Cache_tempdir', 'No cache directory until something cached');
+# Test 10: There should be nothing in the cache directory until we actually cache something
+ok(scalar <$TEMPDIR/*> == 0, 'Empty cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -108,10 +106,10 @@ print "Cached output\n";
 CGI::Cache::stop();
 
 # Test 11: There should be a cache directory after we actually cache something
-ok(-d 't/CGI_Cache_tempdir', 'Cache directory after something cached');
+ok(-d $TEMPDIR, 'Cache directory after something cached');
 
 # ----------------------------------------------------------------------------
 
 # Clean up
-rmtree 't/CGI_Cache_tempdir';
+rmtree $TEMPDIR;
 
