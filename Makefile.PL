@@ -35,4 +35,7 @@ EOF
 
 clean_files('t/CGI_Cache_tempdir','t/*.cgi');
 
+license 'gpl2';
+auto_license(holder => 'David Coppit');
+
 WriteAll();
