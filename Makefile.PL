@@ -19,6 +19,11 @@ include(
 
 license('gpl');
 
+configure_requires(
+  # Module::Install::Bugtracker needs this
+  'URI::Escape' => 0,
+);
+
 requires(
   'File::Path' => 0,
   'Tie::Restore' => 0,
@@ -34,6 +39,12 @@ test_requires(
 
 check_optional('Benchmark::Timer' => '0.7100',
   "Install Benchmark::Timer if you want to run \"make testspeed\"\n");
+
+# Module::Install doesn't figure out that Module::Install::CheckOptional needs
+# this. Include it manually.
+include(
+  'Module::AutoInstall' => 0,
+);
 
 Add_Test_Target('testspeed', 't/speed.pl');
 
