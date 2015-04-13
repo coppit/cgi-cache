@@ -1,5 +1,5 @@
 use File::Temp;
-use Test::More tests => 16;
+use Test::More tests => 15;
 
 use strict;
 use lib 't';
@@ -47,12 +47,13 @@ Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cach
 $script_number++;
 
 rmtree $TEMPDIR;
+$TEMPDIR = File::Temp::tempdir();
 }
 
 # ----------------------------------------------------------------------------
 
-# Test 4: There should be no cache directory until we actually cache something
-ok(!-e $TEMPDIR, 'No cache directory until something cached');
+# Test 4: There should be nothing in the cache directory until we actually cache something
+ok(scalar <$TEMPDIR/*> == 0, 'Empty cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -84,12 +85,13 @@ Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cach
 $script_number++;
 
 rmtree $TEMPDIR;
+$TEMPDIR = File::Temp::tempdir();
 }
 
 # ----------------------------------------------------------------------------
 
-# Test 8: There should be no cache directory until we actually cache something
-ok(!-e $TEMPDIR, 'No cache directory until something cached');
+# Test 8: There should be nothing in the cache directory until we actually cache something
+ok(scalar <$TEMPDIR/*> == 0, 'Empty cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
@@ -123,6 +125,7 @@ Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cach
 $script_number++;
 
 rmtree $TEMPDIR;
+$TEMPDIR = File::Temp::tempdir();
 }
 
 # ----------------------------------------------------------------------------
@@ -165,10 +168,3 @@ $script_number++;
 
 rmtree $TEMPDIR;
 }
-
-# ----------------------------------------------------------------------------
-
-# Test 16: There should be no cache directory until we actually cache something
-ok(!-e $TEMPDIR, 'No cache directory until something cached');
-
-# ----------------------------------------------------------------------------

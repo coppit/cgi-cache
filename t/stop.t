@@ -49,6 +49,7 @@ Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cach
 $script_number++;
 
 rmtree $TEMPDIR;
+$TEMPDIR = File::Temp::tempdir();
 }
 
 # ----------------------------------------------------------------------------
