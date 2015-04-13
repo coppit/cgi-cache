@@ -62,7 +62,7 @@ $script_number++;
 # ----------------------------------------------------------------------------
 
 # Test 4 There should be nothing in the cache directory until we actually cache something
-ok(scalar <$TEMPDIR/*> == 0, 'Empty cache directory until something cached');
+ok(!defined(<$TEMPDIR/*>), 'Empty cache directory until something cached');
 
 # ----------------------------------------------------------------------------
 
