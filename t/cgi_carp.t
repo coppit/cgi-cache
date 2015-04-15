@@ -43,7 +43,7 @@ CGI::Cache::start() or exit;
 die ("Good day to die\n");
 EOF
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 my $short_script_name = $test_script_name;
 $short_script_name =~ s#.*/##;
@@ -85,7 +85,7 @@ my $expected_stderr = '';
 my $expected_cached = "Good day to live\n";
 my $message = "CGI::Carp caching with default attributes";
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 Init_For_Run($test_script_name, $script, 1);
 Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);

@@ -27,7 +27,7 @@ sub Time_Script
   my $expected_stdout = shift;
   my $message = shift; 
   
-  my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+  my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
   my $t = Benchmark::Timer->new(skip => 1, confidence => 95, error => 5, minimum => 3);
   my $total_tests = 0;

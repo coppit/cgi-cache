@@ -39,7 +39,7 @@ my $expected_stderr = "Forced die!\n";
 my $expected_cached = undef;
 my $message = 'die() prevents caching';
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 Init_For_Run($test_script_name, $script, 1);
 Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
@@ -77,7 +77,7 @@ my $expected_stderr = "STDERR!\n";
 my $expected_cached = undef;
 my $message = 'Print to STDERR prevents caching';
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 Init_For_Run($test_script_name, $script, 1);
 Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
@@ -117,7 +117,7 @@ my $expected_stderr = "";
 my $expected_cached = undef;
 my $message = 'redirected die() prevents caching';
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 Init_For_Run($test_script_name, $script, 1);
 Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
@@ -159,7 +159,7 @@ my $expected_stderr = "Forced die!\n";
 my $expected_cached = undef;
 my $message = 'die() (with filehandles) prevents caching';
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 Init_For_Run($test_script_name, $script, 1);
 Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);

@@ -6,6 +6,7 @@ use Test::More;
 use FileHandle;
 use Config;
 use File::Slurp;
+use File::Temp;
 
 use vars qw( @EXPORT @ISA $VERSION );
 
@@ -62,11 +63,12 @@ sub Run_Script
 
   # Save STDERR and redirect temporarily to nothing. This will prevent the
   # test script from emitting output to STDERR
+  my (undef, $stderr_redirected) = File::Temp::tempfile(UNLINK => 1);
   {
     my $oldstderr;
     open $oldstderr,">&STDERR" or die "Can't save STDERR: $!\n";
-    open STDERR,">STDERR-redirected"
-      or die "Can't redirect STDERR to STDERR-redirected: $!\n";
+    open STDERR,">$stderr_redirected"
+      or die "Can't redirect STDERR to $stderr_redirected: $!\n";
 
     my $script_results;
     
@@ -118,8 +120,7 @@ sub Run_Script
   }
 
   {
-    my $script_errors = read_file('STDERR-redirected');
-    unlink "STDERR-redirected";
+    my $script_errors = read_file($stderr_redirected);
 
     if (defined $expected_stderr)
     {

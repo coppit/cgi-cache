@@ -47,7 +47,7 @@ unlink "TEST.OUT";
 print "RESULTS: \$results";
 EOF
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 write_file($test_script_name, $script);
 Setup_Cache($test_script_name,$script,1);
@@ -100,7 +100,7 @@ my $expected_stderr = '';
 my $expected_cached = "Test output 1\n";
 my $message = 'Monitor non-STDOUT filehandle';
 
-my $test_script_name = File::Temp::mktemp('cgi_test.cgi.XXXXX');
+my (undef, $test_script_name) = File::Temp::tempfile('cgi_test.cgi.XXXXX');
 
 Init_For_Run($test_script_name, $script, 1);
 Run_Script($test_script_name, $expected_stdout, $expected_stderr, $expected_cached, $message);
