@@ -7,7 +7,7 @@ TODO
 
 # The module files
 lib/CGI/Cache.pm
-lib/Module/Install/PRIVATE/Add_Test_Target.pm
+private-lib/Module/Install/PRIVATE/Add_Test_Target.pm
 
 # Tests
 t/basic.t
