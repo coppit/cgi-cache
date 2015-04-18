@@ -3,6 +3,7 @@ Version 1.4205:
 - Don't install private Module::Install extension. Thanks to Paul Howarth
   <paul@city-fan.org> for the bug report in another module.
   https://rt.cpan.org/Ticket/Update.html?id=103482
+- Clarify licensing terms
 
 Version 1.4204: Sun Apr 12 2015
 - Enable verbose testing for CPAN-testers
