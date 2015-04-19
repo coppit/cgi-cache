@@ -2,7 +2,7 @@ Version 1.4205:
 - Improve support for parallel test execution
 - Don't install private Module::Install extension. Thanks to Paul Howarth
   <paul@city-fan.org> for the bug report in another module.
-  https://rt.cpan.org/Ticket/Update.html?id=103482
+  https://rt.cpan.org/Ticket/Display.html?id=103482
 - Clarify licensing terms
 - Move verbose testing to a private module, and implement it in a way that
   doesn't require editing the Makefile after it is generated.
