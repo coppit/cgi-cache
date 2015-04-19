@@ -17,8 +17,6 @@ include(
   'File::Slurp' => 0,
 );
 
-license('gpl');
-
 configure_requires(
   # Module::Install::Bugtracker needs this
   'URI::Escape' => 0,
