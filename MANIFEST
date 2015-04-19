@@ -7,7 +7,6 @@ TODO
 
 # The module files
 lib/CGI/Cache.pm
-private-lib/Module/Install/PRIVATE/Add_Test_Target.pm
 
 # Tests
 t/basic.t
@@ -38,8 +37,13 @@ inc/Module/Install/GithubMeta.pm
 inc/Module/Install/Include.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
-inc/Module/Install/PRIVATE/Add_Test_Target.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
+inc/Module/Install/PRIVATE/Add_Test_Target.pm
+inc/Module/Install/PRIVATE/Enable_Verbose_CPAN_Testing.pm
 
-META.yml                                Module meta-data (added by MakeMaker)
+# Private Module::Install extensions
+private-lib/Module/Install/PRIVATE/Add_Test_Target.pm
+private-lib/Module/Install/PRIVATE/Enable_Verbose_CPAN_Testing.pm
+
+META.yml

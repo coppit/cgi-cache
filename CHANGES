@@ -4,6 +4,8 @@ Version 1.4205:
   <paul@city-fan.org> for the bug report in another module.
   https://rt.cpan.org/Ticket/Update.html?id=103482
 - Clarify licensing terms
+- Move verbose testing to a private module, and implement it in a way that
+  doesn't require editing the Makefile after it is generated.
 
 Version 1.4204: Sun Apr 12 2015
 - Enable verbose testing for CPAN-testers

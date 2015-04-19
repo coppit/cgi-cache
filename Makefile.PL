@@ -6,7 +6,6 @@ use strict;
 use lib 'private-lib';
 
 use inc::Module::Install;
-use File::Slurp;
 
 all_from('lib/CGI/Cache.pm');
 
@@ -38,21 +37,11 @@ test_requires(
 check_optional('Benchmark::Timer' => '0.7100',
   "Install Benchmark::Timer if you want to run \"make testspeed\"\n");
 
-# Module::Install doesn't figure out that Module::Install::CheckOptional needs
-# this. Include it manually.
-include(
-  'Module::AutoInstall' => 0,
-);
-
 Add_Test_Target('testspeed', 't/speed.pl');
 
 license 'gpl2';
 auto_license(holder => 'David Coppit');
 
-WriteAll();
+enable_verbose_cpan_testing();
 
-if (auto_tester) {
-  my $code = read_file('Makefile');
-  $code =~ s/TEST_VERBOSE\s*=\s*0/TEST_VERBOSE=1/ or die "Couldn't enable verbose mode in Makefile";
-  write_file('Makefile', $code);
-}
+WriteAll();
