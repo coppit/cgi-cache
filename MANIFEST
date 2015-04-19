@@ -23,7 +23,6 @@ t/speed.pl
 t/user_specified_filehandle.t
 
 # Module::Install extensions
-inc/File/Slurp.pm
 inc/Module/AutoInstall.pm
 inc/Module/Install.pm
 inc/Module/Install/AutoLicense.pm

@@ -12,10 +12,6 @@ all_from('lib/CGI/Cache.pm');
 auto_set_bugtracker;
 githubmeta;
 
-include(
-  'File::Slurp' => 0,
-);
-
 configure_requires(
   # Module::Install::Bugtracker needs this
   'URI::Escape' => 0,
@@ -30,6 +26,7 @@ requires(
 );
 
 test_requires(
+  'File::Slurp' => 0,
   'Test::More' => 0,
   'Error' => 0,
 );
