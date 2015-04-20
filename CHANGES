@@ -1,4 +1,4 @@
-Version 1.4205:
+Version 1.4205: Mon Apr 20 2015
 - Improve support for parallel test execution
 - Don't install private Module::Install extension. Thanks to Paul Howarth
   <paul@city-fan.org> for the bug report in another module.
