@@ -36,6 +36,8 @@ check_optional('Benchmark::Timer' => '0.7100',
 
 Add_Test_Target('testspeed', 't/speed.pl');
 
+no_index 'directory' => 'private-lib';
+
 license 'gpl2';
 auto_license(holder => 'David Coppit');
 
