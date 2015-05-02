@@ -1,5 +1,7 @@
 Version 1.4206:
 - Prevent CPAN from indexing private-lib
+- Again try to silence subroutines redefined warnings in File::Slurp.
+  http://www.cpantesters.org/cpan/report/9373ce6a-e71a-11e4-9f23-cdc1e0bfc7aa
 
 Version 1.4205: Mon Apr 20 2015
 - Improve support for parallel test execution

@@ -5,8 +5,17 @@ use Exporter;
 use Test::More;
 use FileHandle;
 use Config;
-use File::Slurp;
 use File::Temp;
+
+# http://www.cpantesters.org/cpan/report/9373ce6a-e71a-11e4-9f23-cdc1e0bfc7aa
+BEGIN {
+  $SIG{__WARN__} = sub {
+    my $warning = shift;
+    warn $warning unless $warning =~ /Subroutine .* redefined at/;
+  };
+  use File::Slurp;
+  $SIG{__WARN__} = undef;
+};
 
 use vars qw( @EXPORT @ISA $VERSION );
 

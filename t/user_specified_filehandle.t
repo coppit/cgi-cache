@@ -6,7 +6,16 @@ use lib 't';
 use File::Path;
 use Test::Utils;
 use CGI::Cache;
-use File::Slurp;
+
+# http://www.cpantesters.org/cpan/report/9373ce6a-e71a-11e4-9f23-cdc1e0bfc7aa
+BEGIN {
+  $SIG{__WARN__} = sub {
+    my $warning = shift;
+    warn $warning unless $warning =~ /Subroutine .* redefined at/;
+  };
+  use File::Slurp;
+  $SIG{__WARN__} = undef;
+};
 
 use vars qw( $VERSION );
 
@@ -25,7 +34,16 @@ my $script_number = 1;
 my $script = <<EOF;
 use lib '../blib/lib';
 use CGI::Cache;
-use File::Slurp;
+
+# http://www.cpantesters.org/cpan/report/9373ce6a-e71a-11e4-9f23-cdc1e0bfc7aa
+BEGIN {
+  $SIG{__WARN__} = sub {
+    my $warning = shift;
+    warn $warning unless $warning =~ /Subroutine .* redefined at/;
+  };
+  use File::Slurp;
+  $SIG{__WARN__} = undef;
+};
 
 open FH, ">TEST.OUT";
 
