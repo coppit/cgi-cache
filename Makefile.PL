@@ -43,4 +43,6 @@ auto_license(holder => 'David Coppit');
 
 enable_verbose_cpan_testing();
 
+use_standard_tests;
+
 WriteAll();
