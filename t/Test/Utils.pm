@@ -122,7 +122,7 @@ sub Run_Script
   }
 
   {
-    my $script_errors = read_text($stderr_redirected);
+    my $script_errors = read_text($stderr_redirected, undef, 1);
 
     if (defined $expected_stderr)
     {

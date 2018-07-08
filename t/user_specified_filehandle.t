@@ -42,7 +42,7 @@ CGI::Cache::stop();
 
 close FH;
 
-my \$results = read_text('TEST.OUT');
+my \$results = read_text('TEST.OUT', undef, 1);
 
 unlink "TEST.OUT";
 
@@ -90,7 +90,7 @@ CGI::Cache::stop();
 
 close FH;
 
-my \$results = read_text('TEST.OUT');
+my \$results = read_text('TEST.OUT', undef, 1);
 
 unlink "TEST.OUT";
 
