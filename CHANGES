@@ -1,3 +1,7 @@
+Version 1.4210:
+- Trying once again to fix File::Slurp redefined warnings
+  http://www.cpantesters.org/cpan/report/3bec3abc-81ac-11e8-ab91-fd87d1c819e4
+
 Version 1.4209:
 - Trying once again to fix the compile test on windows
 

@@ -27,7 +27,7 @@ requires(
 );
 
 test_requires(
-  'File::Slurp' => 0,
+  'File::Slurper' => 0,
   'Test::More' => 0,
   'Error' => 0,
 );
